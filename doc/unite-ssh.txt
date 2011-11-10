@@ -1,0 +1,118 @@
+*unite-ssh.txt*	SSH source for unite.vim
+
+Version: 0.1
+Author : Shougo <Shougo.Matsu@gmail.com>
+License: MIT license  {{{
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    "Software"), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    The above copyright notice and this permission notice shall be included
+    in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+}}}
+
+CONTENTS					*unite-ssh-contents*
+
+Usage			|unite-ssh-usage|
+Install			|unite-ssh-install|
+Interface		|unite-ssh-interface|
+  Variables		  |unite-ssh-variables|
+    Sources variables	    |unite-ssh-sshers-variables|
+Configulation Examples	|unite-ssh-ssher-examples|
+Changelog		|unite-ssh-changelog|
+
+==============================================================================
+USAGE						*unite-ssh-usage*
+
+	This source nominates ssher output asynchronously.
+	If arguments is not given, ssher is detected.
+	If argument 1 is "!", errors is not filtered.
+
+		Source arguments:
+		1. ssher name.
+
+>
+	:Unite ssh
+<
+==============================================================================
+INSTALL						*unite-ssh-install*
+
+Requirements: unite.vim and ssh commands.
+Recommend: vimproc.
+
+https://github.com/Shougo/vimproc
+https://github.com/Shougo/unite.vim
+
+==============================================================================
+INTERFACE					*unite-ssh-interface*
+
+------------------------------------------------------------------------------
+VARIABLES 					*unite-ssh-variables*
+
+g:unite_kind_file_ssh_delete_file_command		*g:unite_kind_file_ssh_delete_file_command*
+g:unite_kind_file_ssh_delete_directory_command	*g:unite_kind_file_ssh_delete_directory_command*
+		This variable controls vimfiler (and kind file) use delete
+		command.
+		
+		This variable substitute special arguments:
+		$srcs : src files
+		$dest : destination directory
+		
+		Default value is refer to autoload/unite/kinds/file_ssh.vim.
+
+g:unite_kind_file_ssh_copy_file_command		*g:unite_kind_file_ssh_copy_file_command*
+		This variable controls vimfiler (and kind file) use copy
+		files command.
+		If variable is empty, this system can't support copy file.
+		
+		This variable substitute special arguments:
+		$srcs : src files
+		$dest : destination directory
+		
+		Default value is refer to autoload/unite/kinds/file_ssh.vim.
+
+g:unite_kind_file_ssh_copy_directory_command	*g:unite_kind_file_ssh_copy_directory_command*
+		This variable controls vimfiler (and kind file) use copy
+		directories command.
+		If variable is empty, this system can't support copy directories.
+		
+		This variable substitute special arguments:
+		$srcs : src files
+		$dest : destination directory
+		
+		Default value is refer to autoload/unite/kinds/file_ssh.vim.
+
+g:unite_kind_file_ssh_switch_command			*g:unite_kind_file_ssh_switch_command*
+		This variable controls vimfiler (and kind file) use switch
+		files command.
+		
+		This variable substitute special arguments:
+		$srcs : src files
+		$dest : destination directory
+		
+		Default value is refer to autoload/unite/kinds/file_ssh.vim.
+
+==============================================================================
+EXAMPLES					*unite-ssh-examples*
+>
+	
+<
+==============================================================================
+CHANGELOG					*unite-changelog*
+
+2011-11-10
+- Inital version.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:fdl=0:

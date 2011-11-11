@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 10 Nov 2011.
+" Last Modified: 11 Nov 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -28,8 +28,12 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 " Variables  "{{{
-call unite#util#set_default('g:unite_source_file_ignore_pattern',
+call unite#util#set_default('g:unite_source_file_ssh_ignore_pattern',
       \'^\%(/\|\a\+:/\)$\|\%(^\|/\)\.\.\?$\|\~$\|\.\%(o|exe|dll|bak|sw[po]\)$')
+call unite#util#set_default('g:unite_kind_file_ssh_command',
+      \'ssh')
+call unite#util#set_default('g:unite_kind_file_ssh_list_command',
+      \'HOSTNAME ls -Loa')
 "}}}
 
 function! unite#sources#ssh#define()"{{{
@@ -42,6 +46,15 @@ let s:source = {
       \}
 
 function! s:source.change_candidates(args, context)"{{{
+  let options = get(a:args, 0, '')
+  let hostname = get(a:args, 1, '')
+  let path = get(a:args, 2, '')
+
+  if hostname == ''
+    " No hostname.
+    return []
+  endif
+
   if !has_key(a:context, 'source__cache') || a:context.is_redraw
         \ || a:context.is_invalidate
     " Initialize cache.
@@ -55,7 +68,6 @@ function! s:source.change_candidates(args, context)"{{{
   let input = empty(input_list) ? '' : input_list[0]
   let input = substitute(substitute(a:context.input, '\\ ', ' ', 'g'), '^\a\+:\zs\*/', '/', '')
 
-  let path = get(a:args, 0, '')
   if path !=# '/' && path =~ '[\\/]$'
     " Chomp.
     let path = path[: -2]
@@ -78,39 +90,34 @@ function! s:source.change_candidates(args, context)"{{{
 
   " Glob by directory name.
   let input = substitute(input, '[^/.]*$', '', '')
-  let glob = input . (input =~ '\*$' ? '' : '*')
 
-  " Escape [.
-  if unite#is_win()
-    let glob = substitute(glob, '\[', '\\[[]', 'g')
-  else
-    let glob = escape(glob, '[')
-  endif
-  if !has_key(a:context.source__cache, glob)
-    let files = split(unite#util#substitute_path_separator(
-          \ glob(glob)), '\n')
+  if !has_key(a:context.source__cache, input)
+    let files = map(s:get_filenames(options, hostname, input),
+          \ 'unite#sources#ssh#create_file_dict(v:val, is_relative_path)')
 
     if !is_vimfiler
       if g:unite_source_file_ignore_pattern != ''
-        call filter(files, 'v:val !~ ' . string(g:unite_source_file_ignore_pattern))
+        call filter(files,
+              \ 'v:val.action__path !~ ' . string(g:unite_source_file_ignore_pattern))
       endif
 
-      let files = sort(filter(copy(files), 'isdirectory(v:val)'), 1) +
-            \ sort(filter(copy(files), '!isdirectory(v:val)'), 1)
+      let files = sort(filter(copy(files),
+            \  'v:val.vimfiler__is_directory'), 1) +
+            \ sort(filter(copy(files),
+            \  '!v:val.vimfiler__is_directory'), 1)
     endif
 
-    let a:context.source__cache[glob] = map(files,
-          \ 'unite#sources#file#create_file_dict(v:val, is_relative_path)')
+    let a:context.source__cache[input.'*'] = files
   endif
 
-  let candidates = a:context.source__cache[glob]
+  let candidates = a:context.source__cache[input.'*']
 
   if a:context.input != '' && !is_vimfiler
     let newfile = substitute(a:context.input, '[*\\]', '', 'g')
     if !filereadable(newfile) && !isdirectory(newfile)
       " Add newfile candidate.
       let candidates = copy(candidates) +
-            \ [unite#sources#file#create_file_dict(newfile, is_relative_path, 1)]
+            \ [unite#sources#ssh#create_file_dict(newfile, is_relative_path, 1)]
     endif
 
     if input !~ '^\%(/\|\a\+:/\)$'
@@ -118,7 +125,7 @@ function! s:source.change_candidates(args, context)"{{{
 
       if a:context.input =~ '\.$' && isdirectory(parent . '..')
         " Add .. directory.
-        let candidates = [unite#sources#file#create_file_dict(
+        let candidates = [unite#sources#ssh#create_file_dict(
               \              parent . '..', is_relative_path)]
               \ + copy(candidates)
       endif
@@ -137,7 +144,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
   elseif filereadable(path)
     let type = 'file'
     let info = [readfile(path),
-          \ unite#sources#file#create_file_dict(path, 0)]
+          \ unite#sources#ssh#create_file_dict(path, 0)]
   else
     return [ 'error', '[file] Invalid path : ' . path ]
   endif
@@ -157,7 +164,7 @@ function! s:source.vimfiler_gather_candidates(args, context)"{{{
     let candidates += filter(self.change_candidates(a:args, context),
           \ 'v:val.word !~ "/\.\.\\?$"')
   elseif filereadable(path)
-    let candidates = [ unite#sources#file#create_file_dict(path, 0) ]
+    let candidates = [ unite#sources#ssh#create_file_dict(path, 0) ]
   else
     let candidates = []
   endif
@@ -202,7 +209,7 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   let is_relative_path = path !~ '^\%(/\|\a\+:/\)'
 
   " Set vimfiler property.
-  let candidates = [ unite#sources#file#create_file_dict(path, is_relative_path) ]
+  let candidates = [ unite#sources#ssh#create_file_dict(path, is_relative_path) ]
   for candidate in candidates
     call unite#sources#file#create_vimfiler_dict(candidate, exts)
   endfor
@@ -215,41 +222,52 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
-  return split(glob(a:arglead . '*'), '\n')
-endfunction"}}}
+  let options = get(a:args, 0, '')
+  let hostname = get(a:args, 1, '')
+  let path = get(a:args, 2, '')
 
-function! unite#sources#ssh#create_file_dict(file, is_relative_path, ...)"{{{
-  let is_newfile = get(a:000, 0, 0)
-
-  let dict = {
-        \ 'word' : a:file, 'abbr' : a:file,
-        \ 'action__path' : a:file,
-        \}
-
-  let dict.action__directory =
-        \ unite#util#path2directory(a:file)
-
-  if a:is_relative_path
-    let dict.action__path = unite#util#substitute_path_separator(
-        \                    fnamemodify(a:file, ':p'))
-    let dict.action__directory =
-          \ unite#util#substitute_path_separator(
-          \      fnamemodify(dict.action__directory, ':.'))
+  if hostname == ''
+    " No hostname.
+    return []
   endif
 
-  if isdirectory(a:file)
-    if a:file !~ '^\%(/\|\a\+:/\)$'
+  let hostname = get(a:args, 0, '')
+
+  return split(s:get_filenames(options, hostname, a:arglead), '\n')
+endfunction"}}}
+
+function! unite#sources#ssh#system_passwd(...)"{{{
+  return call((unite#util#has_vimproc() ?
+        \ 'vimproc#system_passwd' : 'sytem'), a:000)
+endfunction"}}}
+function! unite#sources#ssh#create_file_dict(file, base_path, ...)"{{{
+  let is_newfile = get(a:000, 0, 0)
+  let items = split(a:file)
+  let filename = get(items, 7, '')
+  let is_directory = (get(items, 0, '') =~ '^d')
+
+  let dict = {
+        \ 'word' : filename, 'abbr' : filename,
+        \ 'action__path' : filename,
+        \ 'source__file_info' : items,
+        \ 'vimfiler__is_directory' : is_directory,
+        \}
+
+  let dict.action__directory = a:base_path
+
+  if is_directory
+    if a:file !~ '/$'
       let dict.abbr .= '/'
     endif
 
-    let dict.kind = 'directory'
+    let dict.kind = 'directory/ssh'
   else
-    if is_newfile && !filereadable(a:file)
+    if is_newfile
       " New file.
       let dict.abbr = '[new file]' . a:file
     endif
 
-    let dict.kind = 'file'
+    let dict.kind = 'file/ssh'
   endif
 
   return dict
@@ -265,8 +283,6 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate, exts)"{{{
   let a:candidate.vimfiler__filename =
         \       fnamemodify(a:candidate.action__path, ':t')
 
-  let a:candidate.vimfiler__is_directory =
-        \ isdirectory(a:candidate.action__path)
   if !a:candidate.vimfiler__is_directory
     let a:candidate.vimfiler__is_executable =
           \ unite#util#is_win() ?
@@ -277,6 +293,14 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate, exts)"{{{
   let a:candidate.vimfiler__filetime = getftime(a:candidate.action__path)
   let a:candidate.vimfiler__ftype =
         \ getftype(a:candidate.action__path)
+endfunction"}}}
+
+function! s:get_filenames(options, hostname, directory)"{{{
+  let lines = split(unite#sources#ssh#system_passwd(
+        \ g:unite_kind_file_ssh_command . ' ' . a:options . ' ' .
+        \ substitute(g:unite_kind_file_ssh_list_command,
+        \   '\<HOSTNAME\>', a:hostname, '')), '\n')[1:]
+  return lines
 endfunction"}}}
 
 " Add custom action table."{{{

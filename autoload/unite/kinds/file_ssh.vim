@@ -37,6 +37,14 @@ if !exists('g:unite_kind_file_ssh_delete_file_command')
     let g:unite_kind_file_ssh_delete_file_command = 'rm $srcs'
   endif
 endif
+if !exists('g:unite_kind_file_ssh_delete_file_command')
+  if unite#util#is_win() && !executable('rm')
+    " Can't support.
+    let g:unite_kind_file_ssh_delete_file_command = ''
+  else
+    let g:unite_kind_file_ssh_delete_file_command = 'rm $srcs'
+  endif
+endif
 if !exists('g:unite_kind_file_ssh_delete_directory_command')
   if unite#util#is_win() && !executable('rm')
     " Can't support.

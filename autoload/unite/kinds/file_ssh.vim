@@ -138,6 +138,25 @@ function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
   endif
   call writefile(lines, a:candidate.action__path)
 endfunction"}}}
+
+let s:kind.action_table.vimfiler__shell = {
+      \ 'description' : 'popup shell',
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+  if vimfiler_current_dir =~ '/$'
+    let vimfiler_current_dir = vimfiler_current_dir[: -2]
+  endif
+
+  if !exists(':VimShellInteractive')
+    return
+  endif
+
+  VimShellInteractive `=g:unite_kind_file_ssh_command.' '.vimfiler_current_dir`
+endfunction"}}}
+
 "}}}
 
 function! s:execute_command(command, candidate)"{{{

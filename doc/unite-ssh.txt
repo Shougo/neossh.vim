@@ -35,15 +35,14 @@ Changelog		|unite-ssh-changelog|
 ==============================================================================
 USAGE						*unite-ssh-usage*
 
-	This source nominates ssher output asynchronously.
-	If arguments is not given, ssher is detected.
-	If argument 1 is "!", errors is not filtered.
+	This source nominates ssh host files.
 
 		Source arguments:
-		1. ssher name.
-
+		1. ssh options(port number etc).
+		2. HOSTNAME.
 >
-	:Unite ssh
+	:Unite ssh::HOSTNAME
+	:Unite ssh:-p 333:HOSTNAME
 <
 ==============================================================================
 INSTALL						*unite-ssh-install*

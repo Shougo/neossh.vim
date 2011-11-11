@@ -112,6 +112,7 @@ CHANGELOG					*unite-changelog*
 
 2011-11-11
 - List items.
+- Fixed for vimfiler.
 
 2011-11-10
 - Inital version.

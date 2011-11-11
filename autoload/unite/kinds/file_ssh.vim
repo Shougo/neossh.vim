@@ -85,7 +85,7 @@ endfunction"}}}
 let s:System = vital#of('unite').import('System.File')
 
 let s:kind = {
-      \ 'name' : 'file',
+      \ 'name' : 'file/ssh',
       \ 'default_action' : 'open',
       \ 'action_table' : {},
       \ 'parents' : ['openable', 'cdable', 'uri'],

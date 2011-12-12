@@ -39,10 +39,11 @@ USAGE						*unite-ssh-usage*
 
 		Source arguments:
 		1. ssh options(port number etc).
-		2. HOSTNAME.
+		2. HOSTNAME/path.
+		But you can omit ssh options argument.
 >
-	:Unite ssh::HOSTNAME
-	:Unite ssh:-p 333:HOSTNAME
+	:Unite ssh:HOSTNAME/path
+	:Unite ssh:-p 333:HOSTNAME/path
 <
 ==============================================================================
 INSTALL						*unite-ssh-install*
@@ -109,6 +110,9 @@ EXAMPLES					*unite-ssh-examples*
 <
 ==============================================================================
 CHANGELOG					*unite-changelog*
+
+2011-12-12
+- Improved arguments parse.
 
 2011-11-11
 - List items.

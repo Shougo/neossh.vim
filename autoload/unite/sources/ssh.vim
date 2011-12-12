@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 11 Nov 2011.
+" Last Modified: 12 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -48,9 +48,16 @@ let s:source = {
       \}
 
 function! s:source.change_candidates(args, context)"{{{
-  let options = get(a:args, 0, '')
-  let hostname = get(a:args, 1, '')
-  let path = get(a:args, 2, '')
+  if len(a:args) < 2
+    " Options is omitted.
+    let options = ''
+    let path = get(a:args, 0, '')
+  else
+    let options = get(a:args, 0, '')
+    let path = get(a:args, 1, '')
+  endif
+  let hostname = matchstr(path, '^[^/]*')
+  let path = path[len(hostname)+1:]
 
   if hostname == ''
     " No hostname.

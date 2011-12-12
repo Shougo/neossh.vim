@@ -113,6 +113,7 @@ CHANGELOG					*unite-changelog*
 
 2011-12-12
 - Improved arguments parse.
+- Improved make dictionary.
 
 2011-11-11
 - List items.

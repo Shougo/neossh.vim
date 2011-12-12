@@ -104,6 +104,10 @@ function! s:source.change_candidates(args, context)"{{{
   " Glob by directory name.
   let input = substitute(input, '[^/.]*$', '', '')
 
+  if input =~ '/$'
+    let input = input[: -2]
+  endif
+
   if !has_key(a:context.source__cache, input)
     let files = map(s:get_filenames(options, hostname, input),
           \ 'unite#sources#ssh#create_file_dict(v:val, input)')
@@ -111,7 +115,8 @@ function! s:source.change_candidates(args, context)"{{{
     if !is_vimfiler
       if g:unite_source_file_ignore_pattern != ''
         call filter(files,
-              \ 'v:val.action__path !~ ' . string(g:unite_source_file_ignore_pattern))
+              \ 'v:val.action__path !~ '
+              \  . string(g:unite_source_file_ignore_pattern))
       endif
 
       let files = sort(filter(copy(files),

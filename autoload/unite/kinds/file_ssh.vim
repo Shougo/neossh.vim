@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 11 Nov 2011.
+" Last Modified: 12 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -160,14 +160,8 @@ endfunction"}}}
 "}}}
 
 function! s:execute_command(command, candidate)"{{{
-  let dir = unite#util#path2directory(a:candidate.action__path)
-  " Auto make directory.
-  if !isdirectory(dir) && unite#util#input_yesno(
-        \   printf('"%s" does not exist. Create?', dir))
-    call mkdir(iconv(dir, &encoding, &termencoding), 'p')
-  endif
-
-  silent call unite#util#smart_execute_command(a:command, a:candidate.action__path)
+  silent call unite#util#smart_execute_command(a:command,
+        \ a:candidate.action__path)
 endfunction"}}}
 function! s:external(command, dest_dir, src_files)"{{{
   let dest_dir = a:dest_dir

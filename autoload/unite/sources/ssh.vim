@@ -34,8 +34,10 @@ call unite#util#set_default('g:unite_kind_file_ssh_command',
       \'ssh')
 call unite#util#set_default('g:unite_kind_file_ssh_list_command',
       \'HOSTNAME ls -Loa')
-call unite#util#set_default('g:unite_kind_file_ssh_cat_command',
-      \'HOSTNAME cat')
+call unite#util#set_default('g:unite_kind_file_ssh_copy_directory_command',
+      \'scp -r $srcs $dest')
+call unite#util#set_default('g:unite_kind_file_ssh_copy_file_command',
+      \'scp $srcs $dest')
 "}}}
 
 function! unite#sources#ssh#define()"{{{
@@ -184,9 +186,19 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     endif
 
     let type = 'file'
-    let info = [s:ssh_command(options, hostname,
-          \  g:unite_kind_file_ssh_cat_command, path),
-          \ unite#sources#ssh#create_file_dict(files[0], hostname.base)]
+
+    " Use temporary file.
+    let tempname = tempname()
+    let dict = unite#sources#ssh#create_file_dict(files[0], hostname.base)
+    if unite#kinds#file_ssh#external('copy_file', tempname,
+          \ [ hostname . ':' . base . dict.word ], options)
+      call unite#print_error(printf('Failed file copy %s',
+            \ unite#util#get_last_errmsg()))
+    endif
+    let info = [readfile(tempname), dict]
+    if filereadable(tempname)
+      call delete(tempname)
+    endif
   endif
 
   return [type, info]

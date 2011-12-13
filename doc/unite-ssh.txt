@@ -114,6 +114,7 @@ CHANGELOG					*unite-changelog*
 2011-12-13
 - Improved unite-ssh source.
 - Improved ssh action.
+- Improved file open.
 
 2011-12-12
 - Improved arguments parse.

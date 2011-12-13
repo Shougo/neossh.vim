@@ -35,12 +35,6 @@ endif
 if !exists('g:unite_kind_file_ssh_delete_directory_command')
   let g:unite_kind_file_ssh_delete_directory_command = 'rm -r $srcs'
 endif
-if !exists('g:unite_kind_file_ssh_copy_file_command')
-  let g:unite_kind_file_ssh_copy_file_command = 'cp -p $srcs $dest'
-endif
-if !exists('g:unite_kind_file_ssh_copy_directory_command')
-  let g:unite_kind_file_ssh_copy_directory_command = 'cp -p -r $srcs $dest'
-endif
 if !exists('g:unite_kind_file_ssh_move_command')
   let g:unite_kind_file_ssh_move_command = 'mv $srcs $dest'
 endif
@@ -72,7 +66,6 @@ function! s:kind.action_table.open.func(candidates)"{{{
   endif
 
   for candidate in a:candidates
-    echomsg string(candidate)
     call s:execute_command('edit', candidate)
 
     call unite#remove_previewed_buffer_list(
@@ -113,6 +106,9 @@ function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
   let context = unite#get_context()
   let lines = getline(context.vimfiler__line1, context.vimfiler__line2)
 
+  " Use temporary file.
+  let tempname = tempname()
+
   if context.vimfiler__eventname ==# 'FileAppendCmd'
     " Append.
     let lines = readfile(a:candidate.action__path) + lines
@@ -144,7 +140,8 @@ function! s:execute_command(command, candidate)"{{{
   silent call unite#util#smart_execute_command(a:command,
         \ 'ssh:' . a:candidate.action__path)
 endfunction"}}}
-function! s:external(command, dest_dir, src_files)"{{{
+
+function! unite#kinds#file_ssh#external(command, dest_dir, src_files, options)"{{{
   let dest_dir = a:dest_dir
   if dest_dir =~ '/$'
     " Delete last /.
@@ -152,7 +149,9 @@ function! s:external(command, dest_dir, src_files)"{{{
   endif
 
   let src_files = map(a:src_files, 'substitute(v:val, "/$", "", "")')
-  let command_line = g:unite_kind_file_ssh_{a:command}_command
+  let command_line = printf('%s %s',
+        \ g:unite_kind_file_ssh_{a:command}_command,
+        \ a:options)
 
   " Substitute pattern.
   let command_line = substitute(command_line,
@@ -160,8 +159,7 @@ function! s:external(command, dest_dir, src_files)"{{{
   let command_line = substitute(command_line,
         \'\$dest\>', '"'.dest_dir.'"', 'g')
 
-  " echomsg command_line
-  let output = unite#util#system(command_line)
+  let output = unite#sources#ssh#system_passwd(command_line)
 
   return unite#util#get_last_status()
 endfunction"}}}

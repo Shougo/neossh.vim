@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 12 Dec 2011.
+" Last Modified: 13 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -30,51 +30,19 @@ set cpo&vim
 " Global options definition."{{{
 " External commands.
 if !exists('g:unite_kind_file_ssh_delete_file_command')
-  if unite#util#is_win() && !executable('rm')
-    " Can't support.
-    let g:unite_kind_file_ssh_delete_file_command = ''
-  else
-    let g:unite_kind_file_ssh_delete_file_command = 'rm $srcs'
-  endif
-endif
-if !exists('g:unite_kind_file_ssh_delete_file_command')
-  if unite#util#is_win() && !executable('rm')
-    " Can't support.
-    let g:unite_kind_file_ssh_delete_file_command = ''
-  else
-    let g:unite_kind_file_ssh_delete_file_command = 'rm $srcs'
-  endif
+  let g:unite_kind_file_ssh_delete_file_command = 'rm $srcs'
 endif
 if !exists('g:unite_kind_file_ssh_delete_directory_command')
-  if unite#util#is_win() && !executable('rm')
-    " Can't support.
-    let g:unite_kind_file_ssh_delete_directory_command = ''
-  else
-    let g:unite_kind_file_ssh_delete_directory_command = 'rm -r $srcs'
-  endif
+  let g:unite_kind_file_ssh_delete_directory_command = 'rm -r $srcs'
 endif
 if !exists('g:unite_kind_file_ssh_copy_file_command')
-  if unite#util#is_win() && !executable('cp')
-    " Can't support.
-    let g:unite_kind_file_ssh_copy_file_command = ''
-  else
-    let g:unite_kind_file_ssh_copy_file_command = 'cp -p $srcs $dest'
-  endif
+  let g:unite_kind_file_ssh_copy_file_command = 'cp -p $srcs $dest'
 endif
 if !exists('g:unite_kind_file_ssh_copy_directory_command')
-  if unite#util#is_win() && !executable('cp')
-    " Can't support.
-    let g:unite_kind_file_ssh_copy_directory_command = ''
-  else
-    let g:unite_kind_file_ssh_copy_directory_command = 'cp -p -r $srcs $dest'
-  endif
+  let g:unite_kind_file_ssh_copy_directory_command = 'cp -p -r $srcs $dest'
 endif
 if !exists('g:unite_kind_file_ssh_move_command')
-  if unite#util#is_win() && !executable('mv')
-    let g:unite_kind_file_ssh_move_command = 'move /Y $srcs $dest'
-  else
-    let g:unite_kind_file_ssh_move_command = 'mv $srcs $dest'
-  endif
+  let g:unite_kind_file_ssh_move_command = 'mv $srcs $dest'
 endif
 "}}}
 
@@ -97,12 +65,19 @@ let s:kind.action_table.open = {
       \ 'is_selectable' : 1,
       \ }
 function! s:kind.action_table.open.func(candidates)"{{{
+  if !get(g:, 'vimfiler_as_default_explorer', 0)
+    call unite#print_error("vimshell is not default explorer.")
+    call unite#print_error("Please set g:vimfiler_as_default_explorer is 1.")
+    return
+  endif
+
   for candidate in a:candidates
+    echomsg string(candidate)
     call s:execute_command('edit', candidate)
 
     call unite#remove_previewed_buffer_list(
           \ bufnr(unite#util#escape_file_searching(
-          \       candidate.action__path)))
+          \       'ssh:' . candidate.action__path)))
   endfor
 endfunction"}}}
 
@@ -111,17 +86,23 @@ let s:kind.action_table.preview = {
       \ 'is_quit' : 0,
       \ }
 function! s:kind.action_table.preview.func(candidate)"{{{
+  if !get(g:, 'vimfiler_as_default_explorer', 0)
+    call unite#print_error("vimshell is not default explorer.")
+    call unite#print_error("Please set g:vimfiler_as_default_explorer is 1.")
+    return
+  endif
+
+  let path = 'ssh:' . candidate.action__path
+
   let buflisted = buflisted(
-        \ unite#util#escape_file_searching(
-        \ a:candidate.action__path))
+        \ unite#util#escape_file_searching(path))
   if filereadable(a:candidate.action__path)
     call s:execute_command('pedit', a:candidate)
   endif
 
   if !buflisted
     call unite#add_previewed_buffer_list(
-        \ bufnr(unite#util#escape_file_searching(
-        \       a:candidate.action__path)))
+        \ bufnr(unite#util#escape_file_searching(path)))
   endif
 endfunction"}}}
 
@@ -161,7 +142,7 @@ endfunction"}}}
 
 function! s:execute_command(command, candidate)"{{{
   silent call unite#util#smart_execute_command(a:command,
-        \ a:candidate.action__path)
+        \ 'ssh:' . a:candidate.action__path)
 endfunction"}}}
 function! s:external(command, dest_dir, src_files)"{{{
   let dest_dir = a:dest_dir

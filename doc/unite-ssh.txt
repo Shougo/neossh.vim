@@ -111,6 +111,10 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2011-12-13
+- Improved unite-ssh source.
+- Improved ssh action.
+
 2011-12-12
 - Improved arguments parse.
 - Improved make dictionary.

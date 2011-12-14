@@ -38,12 +38,10 @@ USAGE						*unite-ssh-usage*
 	This source nominates ssh host files.
 
 		Source arguments:
-		1. ssh options(port number etc).
-		2. HOSTNAME/path.
-		But you can omit ssh options argument.
+		1. HOSTNAME
+		2. path.
 >
-	:Unite ssh:HOSTNAME/path
-	:Unite ssh:-p 333:HOSTNAME/path
+	:Unite ssh:HOSTNAME:path
 <
 ==============================================================================
 INSTALL						*unite-ssh-install*
@@ -113,6 +111,7 @@ CHANGELOG					*unite-changelog*
 
 2011-12-14
 - Improved vimfiler__filetime.
+- Chaged source arguments.
 
 2011-12-13
 - Improved unite-ssh source.

@@ -50,16 +50,8 @@ let s:source = {
       \}
 
 function! s:source.change_candidates(args, context)"{{{
-  if len(a:args) < 2
-    " Options is omitted.
-    let options = ''
-    let path = get(a:args, 0, '')
-  else
-    let options = get(a:args, 0, '')
-    let path = get(a:args, 1, '')
-  endif
-  let hostname = matchstr(path, '^[^/]*')
-  let path = path[len(hostname)+1:]
+  let hostname = get(a:args, 0, '')
+  let path = get(a:args, 1, '')
 
   if hostname == ''
     " No hostname.
@@ -111,7 +103,7 @@ function! s:source.change_candidates(args, context)"{{{
   endif
 
   if !has_key(a:context.source__cache, input)
-    let files = map(s:get_filenames(options, hostname, input),
+    let files = map(s:get_filenames(hostname, input),
           \ 'unite#sources#ssh#create_file_dict(v:val, hostname.input)')
 
     if !is_vimfiler
@@ -155,23 +147,15 @@ function! s:source.change_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_check_filetype(args, context)"{{{
-  if len(a:args) < 2
-    " Options is omitted.
-    let options = ''
-    let path = get(a:args, 0, '')
-  else
-    let options = get(a:args, 0, '')
-    let path = get(a:args, 1, '')
-  endif
-  let hostname = matchstr(path, '^[^/]*')
-  let path = path[len(hostname)+1:]
+  let hostname = get(a:args, 0, '')
+  let path = get(a:args, 1, '')
 
   if hostname == ''
     " No hostname.
     return [ 'error', '[ssh] No hostname : ' ]
   endif
 
-  let files = s:get_filenames(options, hostname, path)
+  let files = s:get_filenames(hostname, path)
   if empty(files)
     return [ 'error', '[ssh] Invalid path : ' . path ]
   endif
@@ -191,7 +175,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     let tempname = tempname()
     let dict = unite#sources#ssh#create_file_dict(files[0], hostname.base)
     if unite#kinds#file_ssh#external('copy_file', tempname,
-          \ [ hostname . ':' . base . dict.word ], options)
+          \ [ hostname . ':' . base . dict.word ])
       call unite#print_error(printf('Failed file copy %s',
             \ unite#util#get_last_errmsg()))
     endif
@@ -221,9 +205,8 @@ function! s:source.vimfiler_gather_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_dummy_candidates(args, context)"{{{
-  let options = get(a:args, 0, '')
-  let hostname = get(a:args, 1, '')
-  let path = get(a:args, 2, '')
+  let hostname = get(a:args, 0, '')
+  let path = get(a:args, 1, '')
 
   if hostname == '' || path == ''
     " No hostname.
@@ -246,9 +229,8 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
-  let options = get(a:args, 0, '')
-  let hostname = get(a:args, 1, '')
-  let path = get(a:args, 2, '')
+  let hostname = get(a:args, 0, '')
+  let path = get(a:args, 1, '')
 
   if hostname == ''
     " No hostname.
@@ -257,7 +239,7 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
 
   let hostname = get(a:args, 0, '')
 
-  return split(s:get_filenames(options, hostname, a:arglead), '\n')
+  return split(s:get_filenames(hostname, a:arglead), '\n')
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
@@ -315,15 +297,15 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
         \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
 endfunction"}}}
 
-function! s:get_filenames(options, hostname, path)"{{{
-  let outputs = s:ssh_command(a:options, a:hostname,
+function! s:get_filenames(hostname, path)"{{{
+  let outputs = s:ssh_command(a:hostname,
         \ g:unite_kind_file_ssh_list_command, a:path)
   return len(outputs) == 1 ? outputs : outputs[1:]
 endfunction"}}}
-function! s:ssh_command(options, hostname, command, path)"{{{
+function! s:ssh_command(hostname, command, path)"{{{
   return split(unite#sources#ssh#system_passwd(
-        \ printf('%s %s %s %s', g:unite_kind_file_ssh_command,
-        \   a:options, substitute(a:command,
+        \ printf('%s %s %s', g:unite_kind_file_ssh_command,
+        \   substitute(a:command,
         \   '\<HOSTNAME\>', a:hostname, ''), a:path)), '\n')
 endfunction"}}}
 

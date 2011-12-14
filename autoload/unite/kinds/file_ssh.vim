@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 13 Dec 2011.
+" Last Modified: 14 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -141,7 +141,7 @@ function! s:execute_command(command, candidate)"{{{
         \ 'ssh:' . a:candidate.action__path)
 endfunction"}}}
 
-function! unite#kinds#file_ssh#external(command, dest_dir, src_files, options)"{{{
+function! unite#kinds#file_ssh#external(command, dest_dir, src_files)"{{{
   let dest_dir = a:dest_dir
   if dest_dir =~ '/$'
     " Delete last /.
@@ -149,9 +149,7 @@ function! unite#kinds#file_ssh#external(command, dest_dir, src_files, options)"{
   endif
 
   let src_files = map(a:src_files, 'substitute(v:val, "/$", "", "")')
-  let command_line = printf('%s %s',
-        \ g:unite_kind_file_ssh_{a:command}_command,
-        \ a:options)
+  let command_line = g:unite_kind_file_ssh_{a:command}_command
 
   " Substitute pattern.
   let command_line = substitute(command_line,

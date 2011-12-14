@@ -104,7 +104,7 @@ function! s:source.change_candidates(args, context)"{{{
 
   if !has_key(a:context.source__cache, input)
     let files = map(s:get_filenames(hostname, input),
-          \ 'unite#sources#ssh#create_file_dict(v:val, hostname.input)')
+          \ 'unite#sources#ssh#create_file_dict(v:val, hostname.":".input)')
 
     if !is_vimfiler
       if g:unite_source_file_ignore_pattern != ''
@@ -138,7 +138,7 @@ function! s:source.change_candidates(args, context)"{{{
       if a:context.input =~ '\.$' && isdirectory(parent . '..')
         " Add .. directory.
         let candidates = [unite#sources#ssh#create_file_dict(
-              \              parent . '..', hostname.input)]
+              \              parent . '..', hostname.':'.input)]
               \ + copy(candidates)
       endif
     endif
@@ -147,8 +147,8 @@ function! s:source.change_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_check_filetype(args, context)"{{{
-  let hostname = get(a:args, 0, '')
-  let path = get(a:args, 1, '')
+  let hostname = matchstr(get(a:args, 0, ''), '^[^:]*')
+  let path = get(a:args, 0, '')[len(hostname)+1:]
 
   if hostname == ''
     " No hostname.
@@ -156,7 +156,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
   endif
 
   let files = s:get_filenames(hostname, path)
-  if empty(files)
+  if empty(files) || files[0] =~ '^ssh:'
     return [ 'error', '[ssh] Invalid path : ' . path ]
   endif
 
@@ -173,15 +173,19 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
 
     " Use temporary file.
     let tempname = tempname()
-    let dict = unite#sources#ssh#create_file_dict(files[0], hostname.base)
+    let dict = unite#sources#ssh#create_file_dict(files[0], hostname.':'.base)
+    call unite#sources#ssh#create_vimfiler_dict(dict)
     if unite#kinds#file_ssh#external('copy_file', tempname,
-          \ [ hostname . ':' . base . dict.word ])
-      call unite#print_error(printf('Failed file copy %s',
+          \ [ dict.action__path ])
+      call unite#print_error(printf('Failed file "%s" copy : %s',
+            \ dict.action__path,
             \ unite#util#get_last_errmsg()))
     endif
-    let info = [readfile(tempname), dict]
     if filereadable(tempname)
+      let info = [readfile(tempname), dict]
       call delete(tempname)
+    else
+      let info = [[], dict]
     endif
   endif
 
@@ -254,7 +258,7 @@ function! unite#sources#ssh#create_file_dict(file, base_path, ...)"{{{
 
   let dict = {
         \ 'word' : filename, 'abbr' : filename,
-        \ 'action__path' : a:base_path . '/' . filename,
+        \ 'action__path' : a:base_path . filename,
         \ 'source__file_info' : items,
         \ 'source__mode' : get(items, 0, ''),
         \ 'vimfiler__is_directory' : is_directory,

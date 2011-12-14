@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 13 Dec 2011.
+" Last Modified: 14 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -35,9 +35,9 @@ call unite#util#set_default('g:unite_kind_file_ssh_command',
 call unite#util#set_default('g:unite_kind_file_ssh_list_command',
       \'HOSTNAME ls -Loa')
 call unite#util#set_default('g:unite_kind_file_ssh_copy_directory_command',
-      \'scp -r $srcs $dest')
+      \'scp -q -r $srcs $dest')
 call unite#util#set_default('g:unite_kind_file_ssh_copy_file_command',
-      \'scp $srcs $dest')
+      \'scp -q $srcs $dest')
 "}}}
 
 function! unite#sources#ssh#define()"{{{
@@ -267,7 +267,7 @@ endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, base_path, ...)"{{{
   let is_newfile = get(a:000, 0, 0)
   let items = split(a:file)
-  let filename = get(items, 7, '')
+  let filename = join(items[7:])
   let is_directory = (get(items, 0, '') =~ '^d')
 
   let dict = {
@@ -276,6 +276,8 @@ function! unite#sources#ssh#create_file_dict(file, base_path, ...)"{{{
         \ 'source__file_info' : items,
         \ 'source__mode' : get(items, 0, ''),
         \ 'vimfiler__is_directory' : is_directory,
+        \ 'vimfiler__filetime' :
+        \    matchstr(a:file, '\s\zs\S\+\s\+\S\+\s\+\S\+', 0, 4),
         \}
 
   let dict.action__directory = a:base_path

@@ -111,7 +111,8 @@ CHANGELOG					*unite-changelog*
 
 2011-12-14
 - Improved vimfiler__filetime.
-- Chaged source arguments.
+- Changed source arguments.
+- Changed for new vimfiler interface.
 
 2011-12-13
 - Improved unite-ssh source.

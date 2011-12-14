@@ -51,7 +51,7 @@ let s:source = {
 
 function! s:source.change_candidates(args, context)"{{{
   let hostname = get(a:args, 0, '')
-  let path = get(a:args, 1, '')
+  let path = join(a:args[1:], ':')
 
   if hostname == ''
     " No hostname.
@@ -69,7 +69,7 @@ function! s:source.change_candidates(args, context)"{{{
     let a:context.source__cache = {}
   endif
 
-  let is_vimfiler = get(a:context, 'is_vimfiler', 0)
+  let is_vimfiler = get(a:context, 'is_vimfiler', 1)
 
   let input_list = filter(split(a:context.input,
         \                     '\\\@<! ', 1), 'v:val !~ "!"')
@@ -147,8 +147,8 @@ function! s:source.change_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_check_filetype(args, context)"{{{
-  let hostname = matchstr(get(a:args, 0, ''), '^[^:]*')
-  let path = get(a:args, 0, '')[len(hostname)+1:]
+  let hostname = get(a:args, 0, '')
+  let path = join(a:args[1:], ':')
 
   if hostname == ''
     " No hostname.
@@ -196,10 +196,9 @@ function! s:source.vimfiler_gather_candidates(args, context)"{{{
     return []
   endif
 
-  let args = split(a:args[0], ':')
   let context = deepcopy(a:context)
   let context.is_vimfiler = 1
-  let candidates = self.change_candidates(args, context)
+  let candidates = self.change_candidates(a:args, context)
 
   " Set vimfiler property.
   for candidate in candidates
@@ -210,7 +209,7 @@ function! s:source.vimfiler_gather_candidates(args, context)"{{{
 endfunction"}}}
 function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   let hostname = get(a:args, 0, '')
-  let path = get(a:args, 1, '')
+  let path = join(a:args[1:], ':')
 
   if hostname == '' || path == ''
     " No hostname.
@@ -234,14 +233,12 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
 endfunction"}}}
 function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
   let hostname = get(a:args, 0, '')
-  let path = get(a:args, 1, '')
+  let path = join(a:args[1:], ':')
 
   if hostname == ''
     " No hostname.
     return []
   endif
-
-  let hostname = get(a:args, 0, '')
 
   return split(s:get_filenames(hostname, a:arglead), '\n')
 endfunction"}}}

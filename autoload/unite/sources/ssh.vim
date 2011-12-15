@@ -44,6 +44,8 @@ function! unite#sources#ssh#define()"{{{
   return s:source
 endfunction"}}}
 
+let s:home_directories = {}
+
 let s:source = {
       \ 'name' : 'ssh',
       \ 'description' : 'candidates from ssh',
@@ -72,18 +74,14 @@ function! s:source.change_candidates(args, context)"{{{
   let input_list = filter(split(a:context.input,
         \                     '\\\@<! ', 1), 'v:val !~ "!"')
   let input = empty(input_list) ? '' : input_list[0]
-  let input = substitute(substitute(a:context.input, '\\ ', ' ', 'g'), '^\a\+:\zs\*/', '/', '')
+  let input = substitute(substitute(
+        \ a:context.input, '\\ ', ' ', 'g'), '^\a\+:\zs\*/', '/', '')
 
-  if path !=# '/' && path =~ '[\\/]$'
-    " Chomp.
-    let path = path[: -2]
+  if path !~ '/'
+    let path .= '/'
   endif
 
-  if path == '/'
-    let input = path . input
-  elseif input !~ '^\%(/\|\a\+:/\)' && path != '' && path != '/'
-    let input = path . '/' .  input
-  endif
+  let input = path . input
 
   " Substitute *. -> .* .
   let input = substitute(input, '\*\.', '.*', 'g')
@@ -95,10 +93,6 @@ function! s:source.change_candidates(args, context)"{{{
 
   " Glob by directory name.
   let input = substitute(input, '[^/.]*$', '', '')
-
-  if input =~ '/$'
-    let input = input[: -2]
-  endif
 
   if !has_key(a:context.source__cache, input)
     let files = map(s:get_filenames(hostname, input),
@@ -163,7 +157,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
 
   if files[0] =~ '^d'
     let type = 'directory'
-    let info = join(a:args, ':')
+    let info = hostname . ':' . path
   else
     let base = fnamemodify(path, ':h')
     if base == '.'
@@ -243,17 +237,18 @@ endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, base_path, hostname, ...)"{{{
   let is_newfile = get(a:000, 0, 0)
   let items = split(a:file)
-  let filename = join(items[7:])
+  let filename = fnamemodify(join(items[7:]), ':t')
   let is_directory = (get(items, 0, '') =~ '^d')
 
   let base_path = a:base_path
+
   if base_path !~ '[:/]$'
     let base_path .= '/'
   endif
 
   let dict = {
         \ 'word' : filename, 'abbr' : filename,
-        \ 'action__path' : ('ssh:' . base_path . filename),
+        \ 'action__path' : 'ssh:' . base_path . filename,
         \ 'source__file_info' : items,
         \ 'source__mode' : get(items, 0, ''),
         \ 'vimfiler__is_directory' : is_directory,
@@ -314,6 +309,18 @@ function! s:parse_path(args)
   if hostname =~ '/$'
     " Chomp.
     let hostname = hostname[ :-2]
+  endif
+
+  if !has_key(s:home_directories, hostname)
+    let outputs = s:ssh_command('', hostname, 'echo ''$PWD''')
+    if !empty(outputs)
+      let s:home_directories[hostname] = outputs[0]
+    endif
+  endif
+
+  if path !~ '^/'
+        \ && has_key(s:home_directories, hostname)
+    let path = s:home_directories[hostname] . '/' . path
   endif
 
   return [hostname, path]

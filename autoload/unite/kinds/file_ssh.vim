@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 14 Dec 2011.
+" Last Modified: 15 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -70,7 +70,7 @@ function! s:kind.action_table.open.func(candidates)"{{{
 
     call unite#remove_previewed_buffer_list(
           \ bufnr(unite#util#escape_file_searching(
-          \       'ssh:' . candidate.action__path)))
+          \       candidate.action__path)))
   endfor
 endfunction"}}}
 
@@ -85,7 +85,7 @@ function! s:kind.action_table.preview.func(candidate)"{{{
     return
   endif
 
-  let path = 'ssh:' . candidate.action__path
+  let path = candidate.action__path
 
   let buflisted = buflisted(
         \ unite#util#escape_file_searching(path))
@@ -138,7 +138,7 @@ endfunction"}}}
 
 function! s:execute_command(command, candidate)"{{{
   silent call unite#util#smart_execute_command(a:command,
-        \ 'ssh:' . a:candidate.action__path)
+        \ a:candidate.action__path)
 endfunction"}}}
 
 function! unite#kinds#file_ssh#external(command, dest_dir, src_files)"{{{

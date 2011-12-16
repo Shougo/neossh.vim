@@ -111,6 +111,7 @@ CHANGELOG					*unite-changelog*
 
 2011-12-16
 - Fixed parser.
+- Fixed cd.
 
 2011-12-15
 - Fixed parse path.

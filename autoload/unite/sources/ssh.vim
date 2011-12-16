@@ -50,6 +50,8 @@ let s:source = {
       \ 'description' : 'candidates from ssh',
       \}
 
+let s:filelist_cache = {}
+
 function! s:source.change_candidates(args, context)"{{{
   let [hostname, path] = s:parse_path(a:args)
   if hostname == ''
@@ -60,12 +62,6 @@ function! s:source.change_candidates(args, context)"{{{
   if hostname == ''
     " No hostname.
     return []
-  endif
-
-  if !has_key(a:context, 'source__cache') || a:context.is_redraw
-        \ || a:context.is_invalidate
-    " Initialize cache.
-    let a:context.source__cache = {}
   endif
 
   let is_vimfiler = get(a:context, 'is_vimfiler', 1)
@@ -93,7 +89,8 @@ function! s:source.change_candidates(args, context)"{{{
   " Glob by directory name.
   let input = substitute(input, '[^/.]*$', '', '')
 
-  if !has_key(a:context.source__cache, input)
+  if !has_key(s:filelist_cache, input)
+        \ || a:context.is_redraw
     let files = map(s:get_filenames(hostname, input),
           \ 'unite#sources#ssh#create_file_dict(v:val, hostname.":".input, hostname)')
 
@@ -110,10 +107,10 @@ function! s:source.change_candidates(args, context)"{{{
             \  '!v:val.vimfiler__is_directory'), 1)
     endif
 
-    let a:context.source__cache[input.'*'] = files
+    let s:filelist_cache[input.'*'] = files
   endif
 
-  let candidates = a:context.source__cache[input.'*']
+  let candidates = s:filelist_cache[input.'*']
 
   if a:context.input != '' && !is_vimfiler
     let newfile = substitute(a:context.input, '[*\\]', '', 'g')

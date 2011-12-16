@@ -89,28 +89,23 @@ function! s:source.change_candidates(args, context)"{{{
   " Glob by directory name.
   let input = substitute(input, '[^/.]*$', '', '')
 
-  if !has_key(s:filelist_cache, input)
-        \ || a:context.is_redraw
-    let files = map(s:get_filenames(hostname, input),
-          \ 'unite#sources#ssh#create_file_dict(v:val, hostname.":".input, hostname)')
+  let files = map(s:get_filenames(hostname, input, a:context.is_redraw),
+        \ 'unite#sources#ssh#create_file_dict(v:val, hostname.":".input, hostname)')
 
-    if !is_vimfiler
-      if g:unite_source_file_ignore_pattern != ''
-        call filter(files,
-              \ 'v:val.action__path !~ '
-              \  . string(g:unite_source_file_ignore_pattern))
-      endif
-
-      let files = sort(filter(copy(files),
-            \  'v:val.vimfiler__is_directory'), 1) +
-            \ sort(filter(copy(files),
-            \  '!v:val.vimfiler__is_directory'), 1)
+  if !is_vimfiler
+    if g:unite_source_file_ignore_pattern != ''
+      call filter(files,
+            \ 'v:val.action__path !~ '
+            \  . string(g:unite_source_file_ignore_pattern))
     endif
 
-    let s:filelist_cache[input.'*'] = files
+    let files = sort(filter(copy(files),
+          \  'v:val.vimfiler__is_directory'), 1) +
+          \ sort(filter(copy(files),
+          \  '!v:val.vimfiler__is_directory'), 1)
   endif
 
-  let candidates = s:filelist_cache[input.'*']
+  let candidates = files
 
   if a:context.input != '' && !is_vimfiler
     let newfile = substitute(a:context.input, '[*\\]', '', 'g')
@@ -146,7 +141,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     return [ 'error', '[ssh] No hostname : ' ]
   endif
 
-  let files = s:get_filenames(hostname, path)
+  let files = s:get_filenames(hostname, path, a:context.is_redraw)
   if empty(files) || files[0] =~ '^ssh:'
     return [ 'error', '[ssh] Invalid path : ' . path ]
   endif
@@ -226,7 +221,7 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
     return []
   endif
 
-  return split(s:get_filenames(hostname, a:arglead), '\n')
+  return split(s:get_filenames(hostname, a:arglead, 0), '\n')
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
@@ -284,16 +279,23 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
         \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
 endfunction"}}}
 
-function! s:get_filenames(hostname, path)"{{{
-  let outputs = s:ssh_command(a:hostname,
-        \ g:unite_kind_file_ssh_list_command, a:path)
-  return len(outputs) == 1 ? outputs : outputs[1:]
+function! s:get_filenames(hostname, path, is_force)"{{{
+  let key = a:hostname.':'.a:path
+  if !has_key(s:filelist_cache, key)
+    \ || a:is_force
+    let outputs = s:ssh_command(a:hostname,
+          \ g:unite_kind_file_ssh_list_command, a:path)
+    let s:filelist_cache[key] =
+          \ (len(outputs) == 1 ? outputs : outputs[1:])
+  endif
+
+  return copy(s:filelist_cache[key])
 endfunction"}}}
 function! s:ssh_command(hostname, command, path)"{{{
   return split(unite#sources#ssh#system_passwd(
-        \ printf('%s %s %s', g:unite_kind_file_ssh_command,
+        \ printf('%s %s ''%s''', g:unite_kind_file_ssh_command,
         \   substitute(a:command,
-        \   '\<HOSTNAME\>', a:hostname, ''), a:path)), '\n')
+        \   '\<HOSTNAME\>', a:hostname, ''), fnameescape(a:path))), '\n')
 endfunction"}}}
 function! s:parse_path(args)"{{{
   let hostname = get(a:args, 0, '')

@@ -109,6 +109,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2011-12-16
+- Fixed parser.
+
 2011-12-15
 - Fixed parse path.
 

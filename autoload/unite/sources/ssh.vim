@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 15 Dec 2011.
+" Last Modified: 16 Dec 2011.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -33,7 +33,8 @@ call unite#util#set_default('g:unite_source_file_ssh_ignore_pattern',
 call unite#util#set_default('g:unite_kind_file_ssh_command',
       \'ssh')
 call unite#util#set_default('g:unite_kind_file_ssh_list_command',
-      \'HOSTNAME ls -Loa')
+      \'HOSTNAME ls -Fa')
+      " \'HOSTNAME ls -Loa')
 call unite#util#set_default('g:unite_kind_file_ssh_copy_directory_command',
       \'scp -q -r $srcs $dest')
 call unite#util#set_default('g:unite_kind_file_ssh_copy_file_command',
@@ -43,8 +44,6 @@ call unite#util#set_default('g:unite_kind_file_ssh_copy_file_command',
 function! unite#sources#ssh#define()"{{{
   return s:source
 endfunction"}}}
-
-let s:home_directories = {}
 
 let s:source = {
       \ 'name' : 'ssh',
@@ -77,7 +76,7 @@ function! s:source.change_candidates(args, context)"{{{
   let input = substitute(substitute(
         \ a:context.input, '\\ ', ' ', 'g'), '^\a\+:\zs\*/', '/', '')
 
-  if path !~ '/'
+  if path != '' && path !~ '[:/]$'
     let path .= '/'
   endif
 
@@ -155,9 +154,12 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     return [ 'error', '[ssh] Invalid path : ' . path ]
   endif
 
-  if files[0] =~ '^d'
+  if files[0] =~ '/$'
     let type = 'directory'
-    let info = hostname . ':' . path
+    let info = hostname
+    if path != ''
+      let info .= ':' . path
+    endif
   else
     let base = fnamemodify(path, ':h')
     if base == '.'
@@ -236,9 +238,8 @@ function! unite#sources#ssh#system_passwd(...)"{{{
 endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, base_path, hostname, ...)"{{{
   let is_newfile = get(a:000, 0, 0)
-  let items = split(a:file)
-  let filename = fnamemodify(join(items[7:]), ':t')
-  let is_directory = (get(items, 0, '') =~ '^d')
+  let filename = substitute(a:file, '[*/@|]$', '', '')
+  let is_directory = a:file =~ '/$'
 
   let base_path = a:base_path
 
@@ -249,11 +250,8 @@ function! unite#sources#ssh#create_file_dict(file, base_path, hostname, ...)"{{{
   let dict = {
         \ 'word' : filename, 'abbr' : filename,
         \ 'action__path' : 'ssh:' . base_path . filename,
-        \ 'source__file_info' : items,
-        \ 'source__mode' : get(items, 0, ''),
         \ 'vimfiler__is_directory' : is_directory,
-        \ 'vimfiler__filetime' :
-        \    matchstr(a:file, '\s\zs\S\+\s\+\S\+\s\+\S\+', 0, 4),
+        \ 'source__mode' : matchstr(a:file, '[*/@|]$'),
         \}
 
   let dict.action__directory = base_path
@@ -281,9 +279,7 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
 
   if !a:candidate.vimfiler__is_directory
     let a:candidate.vimfiler__is_executable =
-          \ a:candidate.source__mode =~ 'x'
-    let a:candidate.vimfiler__filesize =
-          \ get(a:candidate.source__file_info, 3, 0)
+          \ a:candidate.source__mode ==# '*'
   endif
 
   " Todo:
@@ -302,29 +298,21 @@ function! s:ssh_command(hostname, command, path)"{{{
         \   substitute(a:command,
         \   '\<HOSTNAME\>', a:hostname, ''), a:path)), '\n')
 endfunction"}}}
-function! s:parse_path(args)
+function! s:parse_path(args)"{{{
   let hostname = get(a:args, 0, '')
   let path = join(a:args[1:], ':')
+  if hostname == ''
+    let hostname = path
+    let path = ''
+  endif
 
   if hostname =~ '/$'
     " Chomp.
     let hostname = hostname[ :-2]
   endif
 
-  if !has_key(s:home_directories, hostname)
-    let outputs = s:ssh_command('', hostname, 'echo ''$PWD''')
-    if !empty(outputs)
-      let s:home_directories[hostname] = outputs[0]
-    endif
-  endif
-
-  if path !~ '^/'
-        \ && has_key(s:home_directories, hostname)
-    let path = s:home_directories[hostname] . '/' . path
-  endif
-
   return [hostname, path]
-endfunction
+endfunction"}}}
 
 " Add custom action table."{{{
 let s:cdable_action_file = {

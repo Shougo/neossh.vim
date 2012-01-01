@@ -38,10 +38,9 @@ USAGE						*unite-ssh-usage*
 	This source nominates ssh host files.
 
 		Source arguments:
-		1. HOSTNAME
-		2. path.
+		1. //HOSTNAME:port/path
 >
-	:Unite ssh:HOSTNAME:path
+	:Unite ssh://HOSTNAME:port/path
 <
 ==============================================================================
 INSTALL						*unite-ssh-install*
@@ -108,6 +107,9 @@ EXAMPLES					*unite-ssh-examples*
 <
 ==============================================================================
 CHANGELOG					*unite-changelog*
+
+2012-01-01
+- Improved parse args.
 
 2011-12-16
 - Fixed parser.

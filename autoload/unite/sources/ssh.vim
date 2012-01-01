@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 16 Dec 2011.
+" Last Modified: 01 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -31,7 +31,7 @@ set cpo&vim
 call unite#util#set_default('g:unite_source_file_ssh_ignore_pattern',
       \'^\%(/\|\a\+:/\)$\|\%(^\|/\)\.\.\?$\|\~$\|\.\%(o|exe|dll|bak|sw[po]\)$')
 call unite#util#set_default('g:unite_kind_file_ssh_command',
-      \'ssh')
+      \'ssh -p PORT')
 call unite#util#set_default('g:unite_kind_file_ssh_list_command',
       \'HOSTNAME ls -Fa')
       " \'HOSTNAME ls -Loa')
@@ -53,12 +53,8 @@ let s:source = {
 let s:filelist_cache = {}
 
 function! s:source.change_candidates(args, context)"{{{
-  let [hostname, path] = s:parse_path(a:args)
-  if hostname == ''
-    " No hostname.
-    return []
-  endif
-
+  let args = join(a:args, ':')
+  let [hostname, port, path] = s:parse_path(args)
   if hostname == ''
     " No hostname.
     return []
@@ -89,8 +85,8 @@ function! s:source.change_candidates(args, context)"{{{
   " Glob by directory name.
   let input = substitute(input, '[^/.]*$', '', '')
 
-  let files = map(s:get_filenames(hostname, input, a:context.is_redraw),
-        \ 'unite#sources#ssh#create_file_dict(v:val, hostname.":".input, hostname)')
+  let files = map(s:get_filenames(hostname, port, input, a:context.is_redraw),
+        \ "unite#sources#ssh#create_file_dict(v:val, hostname.':'.port.'/'.input, hostname)")
 
   if !is_vimfiler
     if g:unite_source_file_ignore_pattern != ''
@@ -112,7 +108,8 @@ function! s:source.change_candidates(args, context)"{{{
     if !filereadable(newfile) && !isdirectory(newfile)
       " Add newfile candidate.
       let candidates = copy(candidates) +
-            \ [unite#sources#ssh#create_file_dict(newfile, input, hostname, 1)]
+            \ [unite#sources#ssh#create_file_dict(newfile,
+            \  hostname.':'.port.'/'.input, hostname, 1)]
     endif
 
     if input !~ '^\%(/\|\a\+:/\)$'
@@ -130,18 +127,15 @@ function! s:source.change_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_check_filetype(args, context)"{{{
-  let [hostname, path] = s:parse_path(a:args)
-  if hostname == ''
-    " No hostname.
-    return []
-  endif
+  let args = join(a:args, ':')
+  let [hostname, port, path] = s:parse_path(args)
 
   if hostname == ''
     " No hostname.
     return [ 'error', '[ssh] No hostname : ' ]
   endif
 
-  let files = s:get_filenames(hostname, path, a:context.is_redraw)
+  let files = s:get_filenames(hostname, port, path, a:context.is_redraw)
   if empty(files) || files[0] =~ '^ssh:'
     return [ 'error', '[ssh] Invalid path : ' . path ]
   endif
@@ -197,7 +191,8 @@ function! s:source.vimfiler_gather_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_dummy_candidates(args, context)"{{{
-  let [hostname, path] = s:parse_path(a:args)
+  let args = join(a:args, ':')
+  let [hostname, port, path] = s:parse_path(args)
   if hostname == ''
     " No hostname.
     return []
@@ -215,13 +210,14 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
-  let [hostname, path] = s:parse_path(a:args)
+  let args = join(a:args, ':')
+  let [hostname, port, path] = s:parse_path(args)
   if hostname == ''
     " No hostname.
     return []
   endif
 
-  return split(s:get_filenames(hostname, a:arglead, 0), '\n')
+  return split(s:get_filenames(hostname, port, a:arglead, 0), '\n')
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
@@ -279,11 +275,11 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
         \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
 endfunction"}}}
 
-function! s:get_filenames(hostname, path, is_force)"{{{
+function! s:get_filenames(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
-    let outputs = s:ssh_command(a:hostname,
+    let outputs = s:ssh_command(a:hostname, a:port,
           \ g:unite_kind_file_ssh_list_command, a:path)
     let s:filelist_cache[key] =
           \ (len(outputs) == 1 ? outputs : outputs[1:])
@@ -291,26 +287,25 @@ function! s:get_filenames(hostname, path, is_force)"{{{
 
   return copy(s:filelist_cache[key])
 endfunction"}}}
-function! s:ssh_command(hostname, command, path)"{{{
+function! s:ssh_command(hostname, port, command, path)"{{{
+  let command = substitute(substitute(
+        \ g:unite_kind_file_ssh_command . ' ' . a:command,
+        \   '\<HOSTNAME\>', a:hostname, ''), '\<PORT\>', a:port, '')
   return split(unite#sources#ssh#system_passwd(
-        \ printf('%s %s ''%s''', g:unite_kind_file_ssh_command,
-        \   substitute(a:command,
-        \   '\<HOSTNAME\>', a:hostname, ''), fnameescape(a:path))), '\n')
+        \ printf('%s ''%s''', command, fnameescape(a:path))), '\n')
 endfunction"}}}
 function! s:parse_path(args)"{{{
-  let hostname = get(a:args, 0, '')
-  let path = join(a:args[1:], ':')
-  if hostname == ''
-    let hostname = path
-    let path = ''
-  endif
+  let args = matchlist(a:args,
+        \'^//\([^:]*\)\%(:\(\d\+\)\)\?/\(.*\)')
 
-  if hostname =~ '/$'
-    " Chomp.
-    let hostname = hostname[ :-2]
+  let hostname = get(args, 1, '')
+  let port = get(args, 2, '')
+  if port == ''
+    let port = 80
   endif
+  let path = get(args, 3, '')
 
-  return [hostname, path]
+  return [hostname, port, path]
 endfunction"}}}
 
 " Add custom action table."{{{

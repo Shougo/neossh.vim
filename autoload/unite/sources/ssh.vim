@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 01 Jan 2012.
+" Last Modified: 04 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -142,10 +142,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
 
   if files[0] =~ '/$'
     let type = 'directory'
-    let info = hostname
-    if path != ''
-      let info .= ':' . path
-    endif
+    let info = printf('//%s:%d/%s', hostname, port, path)
   else
     let base = fnamemodify(path, ':h')
     if base == '.'
@@ -237,7 +234,7 @@ function! unite#sources#ssh#create_file_dict(file, base_path, hostname, ...)"{{{
 
   let dict = {
         \ 'word' : filename, 'abbr' : filename,
-        \ 'action__path' : 'ssh:' . base_path . filename,
+        \ 'action__path' : 'ssh://' . base_path . filename,
         \ 'vimfiler__is_directory' : is_directory,
         \ 'source__mode' : matchstr(a:file, '[*/@|]$'),
         \}
@@ -301,7 +298,8 @@ function! s:parse_path(args)"{{{
   let hostname = get(args, 1, '')
   let port = get(args, 2, '')
   if port == ''
-    let port = 80
+    " Use default port.
+    let port = 22
   endif
   let path = get(args, 3, '')
 

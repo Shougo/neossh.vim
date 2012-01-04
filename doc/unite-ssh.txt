@@ -108,6 +108,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-01-04
+- Fixed path error.
+
 2012-01-01
 - Improved parse args.
 

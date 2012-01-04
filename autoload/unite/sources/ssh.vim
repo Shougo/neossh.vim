@@ -154,8 +154,10 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     " Use temporary file.
     let tempname = tempname()
     let dict = unite#sources#ssh#create_file_dict(
-          \ files[0], hostname.':'.base, hostname)
-    let path = substitute(dict.action__path, '^ssh:', '', '')
+          \ files[0], printf('%s:%s', hostname, base), hostname)
+    " Todo: Support port number.
+          " \ files[0], printf('%s:%d/%s', hostname, port, base), hostname)
+    let path = substitute(dict.action__path, '^ssh://', '', '')
     call unite#sources#ssh#create_vimfiler_dict(dict)
     if unite#kinds#file_ssh#external('copy_file', tempname, [ path ])
       call unite#print_error(printf('Failed file "%s" copy : %s',

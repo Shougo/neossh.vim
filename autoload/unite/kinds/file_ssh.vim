@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 15 Dec 2011.
+" Last Modified: 04 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -137,7 +137,7 @@ endfunction"}}}
 "}}}
 
 function! s:execute_command(command, candidate)"{{{
-  silent call unite#util#smart_execute_command(a:command,
+  call unite#util#smart_execute_command(a:command,
         \ a:candidate.action__path)
 endfunction"}}}
 

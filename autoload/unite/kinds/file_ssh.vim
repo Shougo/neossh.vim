@@ -141,7 +141,7 @@ function! s:execute_command(command, candidate)"{{{
         \ a:candidate.action__path)
 endfunction"}}}
 
-function! unite#kinds#file_ssh#external(command, dest_dir, src_files)"{{{
+function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
   let dest_dir = a:dest_dir
   if dest_dir =~ '/$'
     " Delete last /.
@@ -149,7 +149,9 @@ function! unite#kinds#file_ssh#external(command, dest_dir, src_files)"{{{
   endif
 
   let src_files = map(a:src_files, 'substitute(v:val, "/$", "", "")')
-  let command_line = g:unite_kind_file_ssh_{a:command}_command
+  let command_line = substitute(
+        \ g:unite_kind_file_ssh_{a:command}_command,
+        \ '\<PORT\>', a:port, 'g')
 
   " Substitute pattern.
   let command_line = substitute(command_line,

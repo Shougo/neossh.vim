@@ -36,9 +36,9 @@ call unite#util#set_default('g:unite_kind_file_ssh_list_command',
       \'HOSTNAME ls -Fa')
       " \'HOSTNAME ls -Loa')
 call unite#util#set_default('g:unite_kind_file_ssh_copy_directory_command',
-      \'scp -q -r $srcs $dest')
+      \'scp -P PORT -q -r $srcs $dest')
 call unite#util#set_default('g:unite_kind_file_ssh_copy_file_command',
-      \'scp -q $srcs $dest')
+      \'scp -P PORT -q $srcs $dest')
 "}}}
 
 function! unite#sources#ssh#define()"{{{
@@ -154,12 +154,10 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     " Use temporary file.
     let tempname = tempname()
     let dict = unite#sources#ssh#create_file_dict(
-          \ files[0], printf('%s:%s', hostname, base), hostname)
-    " Todo: Support port number.
-          " \ files[0], printf('%s:%d/%s', hostname, port, base), hostname)
-    let path = substitute(dict.action__path, '^ssh://', '', '')
+          \ files[0], printf('%s:%d/%s', hostname, port, base), hostname)
+    let path = printf('%s:%s', hostname, base . dict.word)
     call unite#sources#ssh#create_vimfiler_dict(dict)
-    if unite#kinds#file_ssh#external('copy_file', tempname, [ path ])
+    if unite#kinds#file_ssh#external('copy_file', port, tempname, [ path ])
       call unite#print_error(printf('Failed file "%s" copy : %s',
             \ path, unite#util#get_last_errmsg()))
     endif
@@ -289,7 +287,7 @@ endfunction"}}}
 function! s:ssh_command(hostname, port, command, path)"{{{
   let command = substitute(substitute(
         \ g:unite_kind_file_ssh_command . ' ' . a:command,
-        \   '\<HOSTNAME\>', a:hostname, ''), '\<PORT\>', a:port, '')
+        \   '\<HOSTNAME\>', a:hostname, 'g'), '\<PORT\>', a:port, 'g')
   return split(unite#sources#ssh#system_passwd(
         \ printf('%s ''%s''', command, fnameescape(a:path))), '\n')
 endfunction"}}}

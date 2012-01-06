@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 04 Jan 2012.
+" Last Modified: 06 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -54,7 +54,7 @@ let s:filelist_cache = {}
 
 function! s:source.change_candidates(args, context)"{{{
   let args = join(a:args, ':')
-  let [hostname, port, path] = s:parse_path(args)
+  let [hostname, port, path] = unite#sources#ssh#parse_path(args)
   if hostname == ''
     " No hostname.
     return []
@@ -128,7 +128,7 @@ function! s:source.change_candidates(args, context)"{{{
 endfunction"}}}
 function! s:source.vimfiler_check_filetype(args, context)"{{{
   let args = join(a:args, ':')
-  let [hostname, port, path] = s:parse_path(args)
+  let [hostname, port, path] = unite#sources#ssh#parse_path(args)
 
   if hostname == ''
     " No hostname.
@@ -189,7 +189,7 @@ function! s:source.vimfiler_gather_candidates(args, context)"{{{
 endfunction"}}}
 function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   let args = join(a:args, ':')
-  let [hostname, port, path] = s:parse_path(args)
+  let [hostname, port, path] = unite#sources#ssh#parse_path(args)
   if hostname == ''
     " No hostname.
     return []
@@ -208,7 +208,7 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
 endfunction"}}}
 function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
   let args = join(a:args, ':')
-  let [hostname, port, path] = s:parse_path(args)
+  let [hostname, port, path] = unite#sources#ssh#parse_path(args)
   if hostname == ''
     " No hostname.
     return []
@@ -271,6 +271,20 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
   let a:candidate.vimfiler__ftype =
         \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
 endfunction"}}}
+function! unite#sources#ssh#parse_path(args)"{{{
+  let args = matchlist(a:args,
+        \'^//\([^:]*\)\%(:\(\d\+\)\)\?/\(.*\)')
+
+  let hostname = get(args, 1, '')
+  let port = get(args, 2, '')
+  if port == ''
+    " Use default port.
+    let port = 22
+  endif
+  let path = get(args, 3, '')
+
+  return [hostname, port, path]
+endfunction"}}}
 
 function! s:get_filenames(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
@@ -290,20 +304,6 @@ function! s:ssh_command(hostname, port, command, path)"{{{
         \   '\<HOSTNAME\>', a:hostname, 'g'), '\<PORT\>', a:port, 'g')
   return split(unite#sources#ssh#system_passwd(
         \ printf('%s ''%s''', command, fnameescape(a:path))), '\n')
-endfunction"}}}
-function! s:parse_path(args)"{{{
-  let args = matchlist(a:args,
-        \'^//\([^:]*\)\%(:\(\d\+\)\)\?/\(.*\)')
-
-  let hostname = get(args, 1, '')
-  let port = get(args, 2, '')
-  if port == ''
-    " Use default port.
-    let port = 22
-  endif
-  let path = get(args, 3, '')
-
-  return [hostname, port, path]
 endfunction"}}}
 
 " Add custom action table."{{{

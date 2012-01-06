@@ -108,6 +108,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-01-06
+- Implemented vimfiler__write action.
+
 2012-01-04
 - Fixed path error.
 

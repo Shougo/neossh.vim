@@ -273,7 +273,7 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
 endfunction"}}}
 function! unite#sources#ssh#parse_path(args)"{{{
   let args = matchlist(a:args,
-        \'^//\([^:]*\)\%(:\(\d\+\)\)\?\%(/\(.*\)\)\?')
+        \'^//\([^/#:]\+\)\%([#:]\(\d\+\)\)\?/\(.*\)$')
 
   let hostname = get(args, 1, '')
   let port = get(args, 2, '')

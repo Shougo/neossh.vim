@@ -136,7 +136,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
   endif
 
   let files = s:get_filenames(hostname, port, path, a:context.is_redraw)
-  if empty(files) || files[0] =~ '^ssh:'
+  if empty(files) || files[0] =~# '^ssh:\|Not found'
     return [ 'error', '[ssh] Invalid path : ' . path ]
   endif
 

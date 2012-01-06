@@ -171,8 +171,13 @@ function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
         \'\$dest\>', '"'.dest_dir.'"', 'g')
 
   let output = unite#sources#ssh#system_passwd(command_line)
+  let status = unite#util#get_last_status()
+  if status
+    call unite#print_error(printf('Failed command_line "%s"', command_line))
+    echomsg command_line
+  endif
 
-  return unite#util#get_last_status()
+  return status
 endfunction"}}}
 
 let &cpo = s:save_cpo

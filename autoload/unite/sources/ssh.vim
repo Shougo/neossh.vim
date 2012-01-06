@@ -214,7 +214,7 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
     return []
   endif
 
-  return split(s:get_filenames(hostname, port, a:arglead, 0), '\n')
+  return s:get_filenames(hostname, port, a:arglead, 0)
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
@@ -273,7 +273,7 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
 endfunction"}}}
 function! unite#sources#ssh#parse_path(args)"{{{
   let args = matchlist(a:args,
-        \'^//\([^:]*\)\%(:\(\d\+\)\)\?/\(.*\)')
+        \'^//\([^:]*\)\%(:\(\d\+\)\)\?\%(/\(.*\)\)\?')
 
   let hostname = get(args, 1, '')
   let port = get(args, 2, '')

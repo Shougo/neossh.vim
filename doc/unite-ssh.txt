@@ -36,6 +36,9 @@ Changelog		|unite-ssh-changelog|
 USAGE						*unite-ssh-usage*
 
 	This source nominates ssh host files.
+	
+	Note: To avoid password input, recommend prepare the ssh key or
+	"ControlMaster auto" in ~/.ssh/config
 
 		Source arguments:
 		1. //HOSTNAME:port/path

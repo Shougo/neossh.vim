@@ -111,6 +111,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-01-14
+- Improved check filetype.
+
 2012-01-06
 - Implemented vimfiler__write action.
 - Fixed parse.

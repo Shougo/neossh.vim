@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 06 Jan 2012.
+" Last Modified: 14 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -135,12 +135,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     return [ 'error', '[ssh] No hostname : ' ]
   endif
 
-  let files = s:get_filenames(hostname, port, path, a:context.is_redraw)
-  if empty(files) || files[0] =~# '^ssh:\|Not found'
-    return [ 'error', '[ssh] Invalid path : ' . path ]
-  endif
-
-  if files[0] =~ '/$'
+  if path =~ '/$' || path == ''
     let type = 'directory'
     let info = printf('//%s:%d/%s', hostname, port, path)
   else

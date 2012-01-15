@@ -37,8 +37,8 @@ USAGE						*unite-ssh-usage*
 
 	This source nominates ssh host files.
 	
-	Note: To avoid password input, recommend prepare the ssh key or
-	"ControlMaster auto" in ~/.ssh/config
+	Note: To avoid password input every time, we recommend you to prepare
+	the ssh key or to write "ControlMaster auto" in ~/.ssh/config.
 
 		Source arguments:
 		1. //HOSTNAME:port/path
@@ -49,10 +49,10 @@ USAGE						*unite-ssh-usage*
 INSTALL						*unite-ssh-install*
 
 Requirements: unite.vim and ssh commands.
-Recommend: vimproc.
+Recommended: vimproc.
 
-https://github.com/Shougo/vimproc
 https://github.com/Shougo/unite.vim
+https://github.com/Shougo/vimproc
 
 ==============================================================================
 INTERFACE					*unite-ssh-interface*
@@ -85,7 +85,8 @@ g:unite_kind_file_ssh_copy_file_command		*g:unite_kind_file_ssh_copy_file_comman
 g:unite_kind_file_ssh_copy_directory_command	*g:unite_kind_file_ssh_copy_directory_command*
 		This variable controls vimfiler (and kind file) use copy
 		directories command.
-		If variable is empty, this system can't support copy directories.
+		If the variable is empty, this system can't support copying
+		directories.
 		
 		This variable substitute special arguments:
 		$srcs : src files

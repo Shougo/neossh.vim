@@ -114,6 +114,7 @@ CHANGELOG					*unite-changelog*
 
 2012-01-16
 - Fixed file open error.
+- Fixed file path.
 
 2012-01-14
 - Improved check filetype.

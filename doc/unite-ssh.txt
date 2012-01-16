@@ -111,6 +111,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-01-16
+- Fixed file open error.
+
 2012-01-14
 - Improved check filetype.
 

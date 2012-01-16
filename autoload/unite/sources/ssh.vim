@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 14 Jan 2012.
+" Last Modified: 16 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -149,7 +149,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
     " Use temporary file.
     let tempname = tempname()
     let dict = unite#sources#ssh#create_file_dict(
-          \ files[0], printf('%s:%d/%s', hostname, port, base), hostname)
+          \ path, printf('%s:%d/%s', hostname, port, base), hostname)
     let path = printf('%s:%s', hostname, base . dict.word)
     call unite#sources#ssh#create_vimfiler_dict(dict)
     if unite#kinds#file_ssh#external('copy_file', port, tempname, [ path ])

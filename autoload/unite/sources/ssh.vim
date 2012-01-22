@@ -173,9 +173,11 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
 
     silent! edit `=tempname`
     let lines = getbufline(bufnr(tempname), 1, '$')
+    let fileencoding = getbufvar(bufnr(tempname), '&fileencoding')
     execute 'buffer' current
     execute 'bdelete!' bufnr(tempname)
     call delete(tempname)
+    let dict.vimfiler__encoding = fileencoding
 
     let &lazyredraw = lazy
 

@@ -112,6 +112,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-01-22
+- Fixed encoding conversion.
+
 2012-01-16
 - Fixed file open error.
 - Fixed file path.

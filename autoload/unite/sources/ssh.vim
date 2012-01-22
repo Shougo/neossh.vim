@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 16 Jan 2012.
+" Last Modified: 22 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -136,34 +136,52 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
   endif
 
   if path =~ '/$' || path == ''
+    " For directory.
     let type = 'directory'
     let info = printf('//%s:%d/%s', hostname, port, path)
+    return [type, info]
+  endif
+
+  " For file.
+
+  let base = fnamemodify(path, ':h')
+  if base == '.'
+    let base = ''
+  endif
+
+  let type = 'file'
+
+  " Use temporary file.
+  let tempname = tempname()
+  let dict = unite#sources#ssh#create_file_dict(
+        \ fnamemodify(path, ':t'),
+        \ printf('%s:%d/%s', hostname, port, base), hostname)
+  let path = printf('%s:%s', hostname,
+        \  base . (path =~'^/' ? '/' : '') . dict.word)
+  call unite#sources#ssh#create_vimfiler_dict(dict)
+  if unite#kinds#file_ssh#external('copy_file', port, tempname, [ path ])
+    call unite#print_error(printf('Failed file "%s" copy : %s',
+          \ path, unite#util#get_last_errmsg()))
+  endif
+  if filereadable(tempname)
+    let lazy = &lazyredraw
+
+    set nolazyredraw
+
+    " Read temporary file.
+    let current = bufnr('%')
+
+    silent! edit `=tempname`
+    let lines = getbufline(bufnr(tempname), 1, '$')
+    execute 'buffer' current
+    execute 'bdelete!' bufnr(tempname)
+    call delete(tempname)
+
+    let &lazyredraw = lazy
+
+    let info = [lines, dict]
   else
-    let base = fnamemodify(path, ':h')
-    if base == '.'
-      let base = ''
-    endif
-
-    let type = 'file'
-
-    " Use temporary file.
-    let tempname = tempname()
-    let dict = unite#sources#ssh#create_file_dict(
-          \ fnamemodify(path, ':t'),
-          \ printf('%s:%d/%s', hostname, port, base), hostname)
-    let path = printf('%s:%s', hostname,
-          \  base . (path =~'^/' ? '/' : '') . dict.word)
-    call unite#sources#ssh#create_vimfiler_dict(dict)
-    if unite#kinds#file_ssh#external('copy_file', port, tempname, [ path ])
-      call unite#print_error(printf('Failed file "%s" copy : %s',
-            \ path, unite#util#get_last_errmsg()))
-    endif
-    if filereadable(tempname)
-      let info = [readfile(tempname), dict]
-      call delete(tempname)
-    else
-      let info = [[], dict]
-    endif
+    let info = [[], dict]
   endif
 
   return [type, info]

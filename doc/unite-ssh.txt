@@ -112,6 +112,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-01-23
+- Fixed parse.
+
 2012-01-22
 - Fixed encoding conversion.
 

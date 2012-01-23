@@ -318,8 +318,8 @@ function! s:ssh_command(hostname, port, command, path)"{{{
   let command = substitute(substitute(
         \ g:unite_kind_file_ssh_command . ' ' . a:command,
         \   '\<HOSTNAME\>', a:hostname, 'g'), '\<PORT\>', a:port, 'g')
-  return split(unite#sources#ssh#system_passwd(
-        \ printf('%s ''%s''', command, fnameescape(a:path))), '\r\?\n')
+  return filter(split(unite#sources#ssh#system_passwd(
+        \ printf('%s ''%s''', command, fnameescape(a:path))), '\r\?\n'), 'v:val != ""')
 endfunction"}}}
 
 " Add custom action table."{{{

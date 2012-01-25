@@ -112,6 +112,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-01-25
+- Fixed input pattern.
+
 2012-01-23
 - Fixed parse.
 

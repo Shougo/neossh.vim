@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 Jan 2012.
+" Last Modified: 25 Jan 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -83,7 +83,7 @@ function! s:source.change_candidates(args, context)"{{{
   endif
 
   " Glob by directory name.
-  let input = substitute(input, '[^/.]*$', '', '')
+  let input = substitute(input, '[^/]*$', '', '')
   let input_directory = input
   if input_directory != '' && input_directory !~ '/$'
     let input_directory .= '/'
@@ -319,7 +319,8 @@ function! s:ssh_command(hostname, port, command, path)"{{{
         \ g:unite_kind_file_ssh_command . ' ' . a:command,
         \   '\<HOSTNAME\>', a:hostname, 'g'), '\<PORT\>', a:port, 'g')
   return filter(split(unite#sources#ssh#system_passwd(
-        \ printf('%s ''%s''', command, fnameescape(a:path))), '\r\?\n'), 'v:val != ""')
+        \ printf('%s ''%s''', command, fnameescape(a:path))), '\r\?\n'),
+        \ "v:val != '' && v:val !~ '^ls: '")
 endfunction"}}}
 
 " Add custom action table."{{{

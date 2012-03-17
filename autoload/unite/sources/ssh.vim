@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 25 Jan 2012.
+" Last Modified: 17 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -33,7 +33,7 @@ call unite#util#set_default('g:unite_source_file_ssh_ignore_pattern',
 call unite#util#set_default('g:unite_kind_file_ssh_command',
       \'ssh -p PORT')
 call unite#util#set_default('g:unite_kind_file_ssh_list_command',
-      \'HOSTNAME ls -Fa')
+      \'HOSTNAME ls -Fa1')
       " \'HOSTNAME ls -Loa')
 call unite#util#set_default('g:unite_kind_file_ssh_copy_directory_command',
       \'scp -P PORT -q -r $srcs $dest')
@@ -306,8 +306,9 @@ function! s:get_filenames(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
-    let outputs = s:ssh_command(a:hostname, a:port,
-          \ g:unite_kind_file_ssh_list_command, a:path)
+    let outputs = map(s:ssh_command(a:hostname, a:port,
+          \ g:unite_kind_file_ssh_list_command, a:path),
+          \ "substitute(v:val, '[$*=>@|]$', '', '')")
     let s:filelist_cache[key] =
           \ (len(outputs) == 1 ? outputs : outputs[1:])
   endif

@@ -234,7 +234,8 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
     return []
   endif
 
-  return s:get_filenames(hostname, port, a:arglead, 0)
+  return map(s:get_filenames(hostname, port, a:arglead, 0)
+        \ "substitute(v:val, '[*@|]$', '', '')")
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
@@ -258,15 +259,12 @@ function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
         \ fnamemodify(a:path, ':h'))
 
   if is_directory
-    if a:file !~ '/$'
-      let dict.abbr .= '/'
-    endif
-
+    let dict.abbr .= '/'
     let dict.kind = 'directory/ssh'
   else
     if is_newfile
       " New file.
-      let dict.abbr = '[new file]' . a:file
+      let dict.abbr = '[new file]' . filename
     endif
 
     let dict.kind = 'file/ssh'
@@ -306,9 +304,8 @@ function! s:get_filenames(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
-    let outputs = map(s:ssh_command(a:hostname, a:port,
-          \ g:unite_kind_file_ssh_list_command, a:path),
-          \ "substitute(v:val, '[$*=>@|]$', '', '')")
+    let outputs = s:ssh_command(a:hostname, a:port,
+          \ g:unite_kind_file_ssh_list_command, a:path)
     let s:filelist_cache[key] =
           \ (len(outputs) == 1 ? outputs : outputs[1:])
   endif

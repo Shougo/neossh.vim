@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 17 Mar 2012.
+" Last Modified: 21 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -245,18 +245,19 @@ endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
   let is_newfile = get(a:000, 0, 0)
   let filename = substitute(a:file, '[*/@|]$', '', '')
+  let path = substitute(a:path, '[*/@|]$', '', '')
   let is_directory = a:file =~ '/$'
 
   let dict = {
         \ 'word' : filename, 'abbr' : filename,
-        \ 'action__path' : 'ssh://' . a:path,
+        \ 'action__path' : 'ssh://' . path,
         \ 'vimfiler__is_directory' : is_directory,
         \ 'source__mode' : matchstr(a:file, '[*/@|]$'),
         \}
 
   let dict.action__directory =
         \ unite#util#substitute_path_separator(
-        \ fnamemodify(a:path, ':h'))
+        \ fnamemodify(path, ':h'))
 
   if is_directory
     let dict.abbr .= '/'

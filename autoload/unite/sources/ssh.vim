@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 21 Mar 2012.
+" Last Modified: 22 Mar 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -240,7 +240,7 @@ endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
   return call((unite#util#has_vimproc() ?
-        \ 'vimproc#system_passwd' : 'sytem'), a:000)
+        \ 'vimproc#system_passwd' : 'system'), a:000)
 endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
   let is_newfile = get(a:000, 0, 0)

@@ -305,7 +305,7 @@ let s:kind.action_table.vimfiler__copy = {
       \ 'is_selectable' : 1,
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__move.func(candidates)"{{{
+function! s:kind.action_table.vimfiler__copy.func(candidates)"{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 

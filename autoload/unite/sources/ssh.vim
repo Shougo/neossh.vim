@@ -221,15 +221,16 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
-  let args = join(a:args, ':')
-  let [hostname, port, path] = unite#sources#ssh#parse_path(args)
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(join(a:args, ':'))
   if hostname == ''
     " No hostname.
-    return []
+    return unite#sources#ssh#complete_host(
+          \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos)
+  else
+    return unite#sources#ssh#complete_file(
+          \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos)
   endif
-
-  return map(s:get_filenames(hostname, port, a:arglead, 0)
-        \ "substitute(v:val, '[*@|]$', '', '')")
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
@@ -293,6 +294,78 @@ function! unite#sources#ssh#parse_path(args)"{{{
   let path = get(args, 3, '')
 
   return [hostname, port, path]
+endfunction"}}}
+
+function! unite#sources#ssh#complete_host(args, context, arglead, cmdline, cursorpos)"{{{
+  " Todo
+  return []
+endfunction"}}}
+function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, cursorpos)"{{{
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(join(a:args, ':'))
+  if hostname == ''
+    " No hostname.
+    return []
+  endif
+
+  return map(s:get_filenames(hostname, port, a:arglead, 0)
+        \ "substitute(v:val, '[*@|]$', '', '')")
+endfunction"}}}
+function! unite#sources#ssh#command_complete_directory(context, arglead, cmdline, cursorpos)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+  return filter(unite#sources#ssh#complete_file(
+        \ split(vimfiler_current_dir, ':'), unite#get_context(),
+        \ a:arglead, a:cmdline, a:cursorpos), "v:val =~ '/$'")
+endfunction"}}}
+
+function! unite#sources#ssh#copy_files(dest, srcs)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+  let [_, dest_port, dest_path] =
+        \ unite#sources#ssh#parse_path(
+        \  substitute(vimfiler_current_dir, '^ssh:', '', ''))
+
+  for src in a:srcs
+    let port = dest_port
+
+    let [_, src_port, src_path] =
+        \ unite#sources#ssh#parse_path(
+        \  substitute(src.action__path, '^ssh:', '', ''))
+    if src_port != 22 && port != src_port
+      let port = src_port
+    endif
+
+    if unite#kinds#file_ssh#external('copy_directory',
+          \ port, dest_path, [src_path])
+      call unite#print_error(printf('Failed file "%s" copy : %s',
+            \ src_path, unite#util#get_last_errmsg()))
+    endif
+  endfor
+endfunction"}}}
+function! unite#sources#ssh#move_files(dest, srcs)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+  let [_, dest_port, dest_path] =
+        \ unite#sources#ssh#parse_path(
+        \  substitute(vimfiler_current_dir, '^ssh:', '', ''))
+
+  for src in a:srcs
+    let port = dest_port
+
+    let [_, src_port, src_path] =
+        \ unite#sources#ssh#parse_path(
+        \  substitute(src.action__path, '^ssh:', '', ''))
+    if src_port != 22 && port != src_port
+      let port = src_port
+    endif
+
+    if unite#kinds#file_ssh#external('move',
+          \ port, dest_path, [src_path])
+      call unite#print_error(printf('Failed file "%s" move : %s',
+            \ src_path, unite#util#get_last_errmsg()))
+    endif
+  endfor
 endfunction"}}}
 
 function! s:get_filenames(hostname, port, path, is_force)"{{{

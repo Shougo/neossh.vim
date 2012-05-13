@@ -51,6 +51,9 @@ call unite#util#set_default(
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_delete_directory_command',
       \ 'ssh -p PORT mv $srcs $dest')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_mkdir_command',
+      \ 'ssh -p PORT mkdir $dest')
 "}}}
 
 function! unite#kinds#file_ssh#initialize()"{{{
@@ -125,7 +128,8 @@ function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
   " Use temporary file.
   let tempname = tempname()
 
-  call writefile(map(lines, "iconv(v:val, &encoding, &fileencoding)"), tempname)
+  call writefile(map(lines,
+        \ "iconv(v:val, &encoding, &fileencoding)"), tempname)
 
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(
@@ -161,6 +165,33 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
   VimShellInteractive `=g:unite_kind_file_ssh_command.' '.vimfiler_current_dir`
 endfunction"}}}
 
+let s:kind.action_table.vimfiler__mkdir = {
+      \ 'description' : 'make this directory and parents directory',
+      \ 'is_quit' : 0,
+      \ 'is_invalidate_cache' : 1,
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+
+  let dirname = input('New directory name: ', vimfiler_current_dir . '/',
+        \ 'unite#sources#ssh#command_complete_directory')
+
+  if dirname == ''
+    redraw
+    echo 'Canceled.'
+    return
+  endif
+
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(dirname)
+  if unite#kinds#file_ssh#external('mkdir', port, path, [])
+    call unite#print_error(printf('Failed mkdir "%s" : %s',
+          \ path, unite#util#get_last_errmsg()))
+  endif
+endfunction"}}}
+
 let s:kind.action_table.vimfiler__delete = {
       \ 'description' : 'delete files',
       \ 'is_quit' : 0,
@@ -186,7 +217,6 @@ function! s:check_delete_func(filename)"{{{
   return isdirectory(a:filename) ?
         \ 'delete_directory' : 'delete_file'
 endfunction"}}}
-
 "}}}
 
 function! s:execute_command(command, candidate)"{{{

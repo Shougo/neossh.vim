@@ -115,6 +115,8 @@ CHANGELOG					*unite-changelog*
 2012-04-13
 - Added vimfiler__delete action.
 - Fixed variables.
+- Added vimfiler__mkdir action.
+- Added helper functions.
 
 2012-03-19
 - Fixed path problem.

@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 22 Mar 2012.
+" Last Modified: 13 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -160,33 +160,34 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
         \ fnamemodify(path, ':t'),
         \ printf('%s:%d/%s', hostname, port, path), hostname)
   call unite#sources#ssh#create_vimfiler_dict(dict)
-  if unite#kinds#file_ssh#external('copy_file', port, tempname, [
+  if unite#kinds#file_ssh#external('copy', port, tempname, [
         \ printf('%s:%s', hostname, path) ])
     call unite#print_error(printf('Failed file "%s" copy : %s',
           \ path, unite#util#get_last_errmsg()))
   endif
-  if filereadable(tempname)
-    let lazy = &lazyredraw
 
-    set nolazyredraw
-
-    " Read temporary file.
-    let current = bufnr('%')
-
-    silent! edit `=tempname`
-    let lines = getbufline(bufnr(tempname), 1, '$')
-    let fileencoding = getbufvar(bufnr(tempname), '&fileencoding')
-    silent execute 'buffer' current
-    silent execute 'bdelete!' bufnr(tempname)
-    call delete(tempname)
-    let dict.vimfiler__encoding = fileencoding
-
-    let &lazyredraw = lazy
-
-    let info = [lines, dict]
-  else
-    let info = [[], dict]
+  if !filereadable(tempname)
+    return [[], dict]
   endif
+
+  let lazy = &lazyredraw
+
+  set nolazyredraw
+
+  " Read temporary file.
+  let current = bufnr('%')
+
+  silent! edit `=tempname`
+  let lines = getbufline(bufnr(tempname), 1, '$')
+  let fileencoding = getbufvar(bufnr(tempname), '&fileencoding')
+  silent execute 'buffer' current
+  silent execute 'bdelete!' bufnr(tempname)
+  call delete(tempname)
+  let dict.vimfiler__encoding = fileencoding
+
+  let &lazyredraw = lazy
+
+  let info = [lines, dict]
 
   return [type, info]
 endfunction"}}}

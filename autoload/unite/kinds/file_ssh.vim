@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 08 Mar 2012.
+" Last Modified: 13 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -37,6 +37,9 @@ if !exists('g:unite_kind_file_ssh_delete_directory_command')
 endif
 if !exists('g:unite_kind_file_ssh_move_command')
   let g:unite_kind_file_ssh_move_command = 'mv $srcs $dest'
+endif
+if !exists('g:unite_kind_file_ssh_copy_command')
+  let g:unite_kind_file_ssh_copy_command = 'cp $srcs $dest'
 endif
 "}}}
 
@@ -116,7 +119,7 @@ function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
         \  substitute(a:candidate.action__path, '^ssh:', '', ''))
 
   let path = printf('%s:%s', hostname, path)
-  if unite#kinds#file_ssh#external('copy_file', port, path, [tempname])
+  if unite#kinds#file_ssh#external('copy', port, path, [tempname])
     call unite#print_error(printf('Failed file "%s" copy : %s',
           \ path, unite#util#get_last_errmsg()))
     setlocal modified
@@ -143,6 +146,32 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
   endif
 
   VimShellInteractive `=g:unite_kind_file_ssh_command.' '.vimfiler_current_dir`
+endfunction"}}}
+
+let s:kind.action_table.vimfiler__delete = {
+      \ 'description' : 'delete files',
+      \ 'is_quit' : 0,
+      \ 'is_invalidate_cache' : 1,
+      \ 'is_selectable' : 1,
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__delete.func(candidates)"{{{
+  for candidate in a:candidates
+    let [hostname, port, path] =
+          \ unite#sources#ssh#parse_path(
+          \  substitute(candidate.action__path, '^ssh:', '', ''))
+
+    let path = printf('%s:%s', hostname, path)
+    if unite#kinds#file_ssh#external('delete_directory',
+          \ port, path, [tempname])
+      call unite#print_error(printf('Failed delete "%s" : %s',
+            \ path, unite#util#get_last_errmsg()))
+    endif
+  endfor
+endfunction"}}}
+function! s:check_delete_func(filename)"{{{
+  return isdirectory(a:filename) ?
+        \ 'delete_directory' : 'delete_file'
 endfunction"}}}
 
 "}}}

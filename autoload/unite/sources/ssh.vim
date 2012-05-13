@@ -30,16 +30,9 @@ set cpo&vim
 " Variables  "{{{
 call unite#util#set_default('g:unite_source_file_ssh_ignore_pattern',
       \'^\%(/\|\a\+:/\)$\|\%(^\|/\)\.\.\?$\|\~$\|\.\%(o|exe|dll|bak|sw[po]\)$')
-call unite#util#set_default('g:unite_kind_file_ssh_command',
-      \'ssh -p PORT')
-call unite#util#set_default('g:unite_kind_file_ssh_list_command',
-      \'HOSTNAME ls -Fa1')
-      " \'HOSTNAME ls -Loa')
-call unite#util#set_default('g:unite_kind_file_ssh_copy_directory_command',
-      \'scp -P PORT -q -r $srcs $dest')
-call unite#util#set_default('g:unite_kind_file_ssh_copy_file_command',
-      \'scp -P PORT -q $srcs $dest')
 "}}}
+
+call unite#kinds#file_ssh#initialize()
 
 function! unite#sources#ssh#define()"{{{
   return s:source
@@ -160,7 +153,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
         \ fnamemodify(path, ':t'),
         \ printf('%s:%d/%s', hostname, port, path), hostname)
   call unite#sources#ssh#create_vimfiler_dict(dict)
-  if unite#kinds#file_ssh#external('copy', port, tempname, [
+  if unite#kinds#file_ssh#external('copy_file', port, tempname, [
         \ printf('%s:%s', hostname, path) ])
     call unite#print_error(printf('Failed file "%s" copy : %s',
           \ path, unite#util#get_last_errmsg()))

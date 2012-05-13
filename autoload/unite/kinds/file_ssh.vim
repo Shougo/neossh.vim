@@ -29,19 +29,32 @@ set cpo&vim
 
 " Global options definition."{{{
 " External commands.
-if !exists('g:unite_kind_file_ssh_delete_file_command')
-  let g:unite_kind_file_ssh_delete_file_command = 'rm $srcs'
-endif
-if !exists('g:unite_kind_file_ssh_delete_directory_command')
-  let g:unite_kind_file_ssh_delete_directory_command = 'rm -r $srcs'
-endif
-if !exists('g:unite_kind_file_ssh_move_command')
-  let g:unite_kind_file_ssh_move_command = 'mv $srcs $dest'
-endif
-if !exists('g:unite_kind_file_ssh_copy_command')
-  let g:unite_kind_file_ssh_copy_command = 'cp $srcs $dest'
-endif
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_command',
+      \ 'ssh -p PORT')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_list_command',
+      \ 'HOSTNAME ls -Fa1')
+      " \ 'HOSTNAME ls -Loa')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_copy_directory_command',
+      \ 'scp -P PORT -q -r $srcs $dest')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_copy_file_command',
+      \ 'scp -P PORT -q $srcs $dest')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_delete_file_command',
+      \ 'ssh -p PORT rm $srcs')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_delete_directory_command',
+      \ 'ssh -p PORT rm -r $srcs')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_delete_directory_command',
+      \ 'ssh -p PORT mv $srcs $dest')
 "}}}
+
+function! unite#kinds#file_ssh#initialize()"{{{
+endfunction"}}}
 
 function! unite#kinds#file_ssh#define()"{{{
   return s:kind
@@ -119,7 +132,7 @@ function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
         \  substitute(a:candidate.action__path, '^ssh:', '', ''))
 
   let path = printf('%s:%s', hostname, path)
-  if unite#kinds#file_ssh#external('copy', port, path, [tempname])
+  if unite#kinds#file_ssh#external('copy_file', port, path, [tempname])
     call unite#print_error(printf('Failed file "%s" copy : %s',
           \ path, unite#util#get_last_errmsg()))
     setlocal modified

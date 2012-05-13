@@ -131,11 +131,9 @@ function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
   call writefile(map(lines,
         \ "iconv(v:val, &encoding, &fileencoding)"), tempname)
 
-  let [hostname, port, path] =
-        \ unite#sources#ssh#parse_path(
-        \  substitute(a:candidate.action__path, '^ssh:', '', ''))
+  let [port, path] =
+        \ unite#sources#ssh#parse_action_path(a:candidate.action__path)
 
-  let path = printf('%s:%s', hostname, path)
   if unite#kinds#file_ssh#external('copy_file', port, path, [tempname])
     call unite#print_error(printf('Failed file "%s" copy : %s',
           \ path, unite#util#get_last_errmsg()))
@@ -162,7 +160,8 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
     return
   endif
 
-  VimShellInteractive `=g:unite_kind_file_ssh_command.' '.vimfiler_current_dir`
+  VimShellInteractive
+        \ `=g:unite_kind_file_ssh_command.' '.vimfiler_current_dir`
 endfunction"}}}
 
 let s:kind.action_table.vimfiler__mkdir = {
@@ -175,7 +174,8 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 
-  let dirname = input('New directory name: ', vimfiler_current_dir . '/',
+  let dirname = input('New directory name: ',
+        \ vimfiler_current_dir . '/',
         \ 'unite#sources#ssh#command_complete_directory')
 
   if dirname == ''
@@ -184,8 +184,8 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
     return
   endif
 
-  let [hostname, port, path] =
-        \ unite#sources#ssh#parse_path(dirname)
+  let [port, path] =
+        \ unite#sources#ssh#parse_action_path(dirname)
   if unite#kinds#file_ssh#external('mkdir', port, path, [])
     call unite#print_error(printf('Failed mkdir "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
@@ -201,21 +201,44 @@ let s:kind.action_table.vimfiler__delete = {
       \ }
 function! s:kind.action_table.vimfiler__delete.func(candidates)"{{{
   for candidate in a:candidates
-    let [hostname, port, path] =
-          \ unite#sources#ssh#parse_path(
-          \  substitute(candidate.action__path, '^ssh:', '', ''))
+    let [port, path] =
+          \ unite#sources#ssh#parse_action_path(candidate.action__path)
 
-    let path = printf('%s:%s', hostname, path)
     if unite#kinds#file_ssh#external('delete_directory',
-          \ port, path, [tempname])
+          \ port, path, [])
       call unite#print_error(printf('Failed delete "%s" : %s',
             \ path, unite#util#get_last_errmsg()))
     endif
   endfor
 endfunction"}}}
-function! s:check_delete_func(filename)"{{{
-  return isdirectory(a:filename) ?
-        \ 'delete_directory' : 'delete_file'
+
+let s:kind.action_table.vimfiler__rename = {
+      \ 'description' : 'rename files',
+      \ 'is_quit' : 0,
+      \ 'is_invalidate_cache' : 1,
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__rename.func(candidate)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+
+  let context = unite#get_context()
+  let filename = has_key(context, 'action__filename') ?
+        \ context.action__filename :
+        \ input(printf('New file name: %s -> ',
+        \       a:candidate.action__path), a:candidate.action__path,
+        \       'unite#sources#ssh#command_complete_file')
+  redraw
+
+  let [port, src_path] =
+        \ unite#sources#ssh#parse_action_path(a:candidate.action__path)
+  let [port, dest_path] =
+        \ unite#sources#ssh#parse_action_path(filename)
+  if unite#kinds#file_ssh#external('move',
+        \ port, dest_path, [src_path])
+    call unite#print_error(printf('Failed move "%s" : %s',
+          \ path, unite#util#get_last_errmsg()))
+  endif
 endfunction"}}}
 "}}}
 

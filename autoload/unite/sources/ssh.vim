@@ -311,8 +311,8 @@ function! unite#sources#ssh#parse_action_path(args)"{{{
 endfunction"}}}
 
 function! unite#sources#ssh#complete_host(args, context, arglead, cmdline, cursorpos)"{{{
-  " Todo
-  return []
+  return unite#sources#ssh#command_complete_host(
+        \ a:arglead, a:cmdline, a:cursorpos)
 endfunction"}}}
 function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, cursorpos)"{{{
   let [hostname, port, path] =
@@ -325,19 +325,36 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
   return map(s:get_filenames(hostname, port, a:arglead, 0)
         \ "substitute(v:val, '[*@|]$', '', '')")
 endfunction"}}}
-function! unite#sources#ssh#command_complete_directory(context, arglead, cmdline, cursorpos)"{{{
+function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos)"{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
   return filter(unite#sources#ssh#complete_file(
         \ split(vimfiler_current_dir, ':'), unite#get_context(),
         \ a:arglead, a:cmdline, a:cursorpos), "v:val =~ '/$'")
 endfunction"}}}
-function! unite#sources#ssh#command_complete_file(context, arglead, cmdline, cursorpos)"{{{
+function! unite#sources#ssh#command_complete_file(arglead, cmdline, cursorpos)"{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
   return unite#sources#ssh#complete_file(
         \ split(vimfiler_current_dir, ':'), unite#get_context(),
         \ a:arglead, a:cmdline, a:cursorpos)
+endfunction"}}}
+function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{{{
+  let _ = []
+  for line in readfile('/etc/hosts')
+    let host = matchstr(line, '^[[:alnum:].-]\+')
+    if host != ''
+      call add(_, host)
+    endif
+  endfor
+  for line in readfile('/.ssh/config')
+    let host = matchstr(line, '^Host\s\+\zs[^*]\+\ze')
+    if host != ''
+      call add(_, host)
+    endif
+  endfor
+
+  return sort(filter(_, 'stridx(v:val, a:arglead) == 0'))
 endfunction"}}}
 
 function! unite#sources#ssh#copy_files(dest, srcs)"{{{

@@ -118,6 +118,7 @@ CHANGELOG					*unite-changelog*
 - Added vimfiler__mkdir action.
 - Added helper functions.
 - Added some actions.
+- Implemented complete hosts.
 
 2012-03-19
 - Fixed path problem.

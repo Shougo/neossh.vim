@@ -54,6 +54,9 @@ call unite#util#set_default(
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_mkdir_command',
       \ 'ssh -p PORT mkdir $dest')
+call unite#util#set_default(
+      \ 'g:unite_kind_file_ssh_newfile_command',
+      \ 'ssh -p PORT touch $dest')
 "}}}
 
 function! unite#kinds#file_ssh#initialize()"{{{
@@ -164,6 +167,25 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
         \ `=g:unite_kind_file_ssh_command.' '.vimfiler_current_dir`
 endfunction"}}}
 
+let s:kind.action_table.vimfiler__shellcmd = {
+      \ 'description' : 'execute shell command',
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__shellcmd.func(candidate)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+
+  let command_line = unite#get_context().vimfiler__command
+  echo unite#sources#ssh#system_passwd(command_line)
+
+  let status = unite#util#get_last_status()
+  if status
+    call unite#print_error(
+          \ printf('Failed command_line "%s"', command_line))
+    echomsg command_line
+  endif
+endfunction"}}}
+
 let s:kind.action_table.vimfiler__mkdir = {
       \ 'description' : 'make this directory and parents directory',
       \ 'is_quit' : 0,
@@ -192,6 +214,41 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
   endif
 endfunction"}}}
 
+let s:kind.action_table.vimfiler__newfile = {
+      \ 'description' : 'make this file',
+      \ 'is_quit' : 1,
+      \ 'is_invalidate_cache' : 1,
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__newfile.func(candidate)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+
+  let filename = input('New files name: ',
+        \            vimfiler_current_dir . '/',
+        \            'unite#sources#ssh#command_complete_file')
+  if filename == ''
+    redraw
+    echo 'Canceled.'
+    return
+  endif
+
+  let [port, path] =
+        \ unite#sources#ssh#parse_action_path(filename)
+  if unite#kinds#file_ssh#external('newfile', port, path, [])
+    call unite#print_error(printf('Failed newfile "%s" : %s',
+          \ path, unite#util#get_last_errmsg()))
+  endif
+
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(filename)
+  let file = unite#sources#ssh#create_file_dict(
+        \ fnamemodify(path, ':t'),
+        \ printf('%s:%d/%s', hostname, port, path), hostname)
+  let file.source = 'ssh'
+
+  call unite#mappings#do_action(g:vimfiler_edit_action, [file])
+endfunction"}}}
 let s:kind.action_table.vimfiler__delete = {
       \ 'description' : 'delete files',
       \ 'is_quit' : 0,
@@ -240,6 +297,57 @@ function! s:kind.action_table.vimfiler__rename.func(candidate)"{{{
           \ path, unite#util#get_last_errmsg()))
   endif
 endfunction"}}}
+
+let s:kind.action_table.vimfiler__copy = {
+      \ 'description' : 'copy files',
+      \ 'is_quit' : 0,
+      \ 'is_invalidate_cache' : 1,
+      \ 'is_selectable' : 1,
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__move.func(candidates)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+
+  let context = unite#get_context()
+  let dest_dir = has_key(context, 'action__directory')
+        \ && context.action__directory != '' ?
+        \   context.action__directory :
+        \   input('Input destination directory: ', vimfiler_current_dir,
+        \     'unite#sources#ssh#command_complete_directory')
+  if dest_dir !~ '/$'
+    let dest_dir .= '/'
+  endif
+  let context.action__directory = dest_dir
+
+  call unite#sources#ssh#copy_files(dest_dir, a:candidates)
+endfunction"}}}
+
+let s:kind.action_table.vimfiler__move = {
+      \ 'description' : 'move files',
+      \ 'is_quit' : 0,
+      \ 'is_invalidate_cache' : 1,
+      \ 'is_selectable' : 1,
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__move.func(candidates)"{{{
+  let vimfiler_current_dir =
+        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+
+  let context = unite#get_context()
+  let dest_dir = has_key(context, 'action__directory')
+        \ && context.action__directory != '' ?
+        \   context.action__directory :
+        \   input('Input destination directory: ', vimfiler_current_dir,
+        \     'unite#sources#ssh#command_complete_directory')
+  if dest_dir !~ '/$'
+    let dest_dir .= '/'
+  endif
+  let context.action__directory = dest_dir
+
+  call unite#sources#ssh#move_files(dest_dir, a:candidates)
+endfunction"}}}
+
 "}}}
 
 function! s:execute_command(command, candidate)"{{{

@@ -355,6 +355,13 @@ function! unite#sources#ssh#copy_files(dest, srcs)"{{{
       let port = src_port
     endif
 
+    if fnamemodify(src_path, ':h') ==# dest_path
+      " Same filename.
+      echo 'File is already exists!'
+      let dest_path =
+            \ input(printf('New name: %s -> ', src_path), src_path,
+            \  'unite#sources#ssh#command_complete_file')
+    endif
     if unite#kinds#file_ssh#external('copy_directory',
           \ port, dest_path, [src_path])
       call unite#print_error(printf('Failed file "%s" copy : %s',

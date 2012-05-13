@@ -117,6 +117,7 @@ CHANGELOG					*unite-changelog*
 - Fixed variables.
 - Added vimfiler__mkdir action.
 - Added helper functions.
+- Added some actions.
 
 2012-03-19
 - Fixed path problem.

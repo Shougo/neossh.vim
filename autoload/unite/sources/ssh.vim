@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 13 May 2012.
+" Last Modified: 23 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -282,8 +282,8 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
   let a:candidate.vimfiler__ftype =
         \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
 endfunction"}}}
-function! unite#sources#ssh#parse_path(args)"{{{
-  let args = matchlist(a:args,
+function! unite#sources#ssh#parse_path(path)"{{{
+  let args = matchlist(a:path,
         \'^//\([^/#:]\+\)\%([#:]\(\d*\)\)\?/\?\(.*\)$')
 
   let hostname = get(args, 1, '')
@@ -296,11 +296,11 @@ function! unite#sources#ssh#parse_path(args)"{{{
 
   return [hostname, port, path]
 endfunction"}}}
-function! unite#sources#ssh#parse_action_path(args)"{{{
+function! unite#sources#ssh#parse_action_path(path)"{{{
   if a:path =~ '^ssh:'
     let [hostname, port, path] =
           \ unite#sources#ssh#parse_path(
-          \  substitute(a:candidate.action__path, '^ssh:', '', ''))
+          \  substitute(a:path, '^ssh:', '', ''))
     let path = printf('%s:%s', hostname, path)
   else
     let port = 22

@@ -112,6 +112,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-04-23
+- Fixed path error.
+
 2012-04-13
 - Added vimfiler__delete action.
 - Fixed variables.

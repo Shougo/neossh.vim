@@ -234,7 +234,7 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
   else
     return map(unite#sources#ssh#complete_file(
           \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos),
-          \   "'//' . v:val . ':'")
+          \   "printf('//%s', v:val)")
   endif
 endfunction"}}}
 
@@ -326,8 +326,22 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
     return []
   endif
 
-  return map(s:get_filenames(hostname, port, path, 0),
-        \ "printf('%s:%s/%s', hostname, port,
+  " Glob by directory name.
+  let directory = substitute(path, '[^/]*$', '', '')
+
+  let files = filter(s:get_filenames(hostname, port, directory, 1),
+        \ "v:val !~ '\\.\\.\\?/$'")
+
+  if directory !=# path
+    let narrow_path = fnamemodify(path, ':t')
+    call map(filter(files,
+          \ 'stridx(v:val, narrow_path) == 0'),
+          \ 'directory . v:val')
+  else
+    call map(files, 'path . v:val')
+  endif
+
+  return map(files, "printf('%s:%s/%s', hostname, port,
         \      substitute(v:val, '[*@|]$', '', ''))")
 endfunction"}}}
 function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos)"{{{

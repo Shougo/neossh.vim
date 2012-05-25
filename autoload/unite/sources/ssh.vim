@@ -222,17 +222,19 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   return candidates
 endfunction"}}}
 function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
+  let arg = join(a:args, ':')
   let [hostname, port, path] =
-        \ unite#sources#ssh#parse_path(join(a:args, ':'))
-  if hostname == ''
+        \ unite#sources#ssh#parse_path(arg)
+  if hostname == '' || arg !~ ':'
     " No hostname.
     return map(unite#sources#ssh#complete_host(
           \ a:args, a:context, substitute(a:arglead, '^//', '', ''),
           \  a:cmdline, a:cursorpos),
-          \   "'//' . v:val")
+          \   "'//' . v:val . ':'")
   else
-    return unite#sources#ssh#complete_file(
-          \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos)
+    return map(unite#sources#ssh#complete_file(
+          \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos),
+          \   "'//' . v:val . ':'")
   endif
 endfunction"}}}
 
@@ -324,8 +326,9 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
     return []
   endif
 
-  return map(s:get_filenames(hostname, port, a:arglead, 0),
-        \ "substitute(v:val, '[*@|]$', '', '')")
+  return map(s:get_filenames(hostname, port, path, 0),
+        \ "printf('%s:%s/%s', hostname, port,
+        \      substitute(v:val, '[*@|]$', '', ''))")
 endfunction"}}}
 function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos)"{{{
   let vimfiler_current_dir =
@@ -365,7 +368,8 @@ function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{
 
   if filereadable(expand('~/.ssh/known_hosts'))
     for line in filter(
-          \ readfile(expand('~/.ssh/known_hosts')), "v:val !~ '^|'")
+          \ readfile(expand('~/.ssh/known_hosts')),
+          \        "v:val !~ '^[|\\[]'")
       let host = matchstr(line, '^[^,]*')
       if host != ''
         call add(_, host)
@@ -432,8 +436,9 @@ function! s:get_filenames(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
-    let outputs = s:ssh_command(a:hostname, a:port,
-          \ g:unite_kind_file_ssh_list_command, a:path)
+    let outputs = filter(s:ssh_command(a:hostname, a:port,
+          \ g:unite_kind_file_ssh_list_command, a:path),
+          \   "v:val !~ 'No such file or directory'")
     let s:filelist_cache[key] =
           \ (len(outputs) == 1 ? outputs : outputs[1:])
   endif

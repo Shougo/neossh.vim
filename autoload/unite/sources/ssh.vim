@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 23 May 2012.
+" Last Modified: 25 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -322,7 +322,7 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
     return []
   endif
 
-  return map(s:get_filenames(hostname, port, a:arglead, 0)
+  return map(s:get_filenames(hostname, port, a:arglead, 0),
         \ "substitute(v:val, '[*@|]$', '', '')")
 endfunction"}}}
 function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos)"{{{

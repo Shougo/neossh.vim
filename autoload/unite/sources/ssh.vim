@@ -216,7 +216,7 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
   let candidates = [ unite#sources#ssh#create_file_dict(
         \ filename, path, hostname) ]
   for candidate in candidates
-    call unite#sources#file#create_vimfiler_dict(candidate, exts)
+    call unite#sources#ssh#create_vimfiler_dict(candidate)
   endfor
 
   return candidates

@@ -115,6 +115,7 @@ CHANGELOG					*unite-changelog*
 2012-05-25
 - Fixed path error.
 - Improved completion.
+- Added vimfiler__shell action.
 
 2012-04-23
 - Fixed path error.

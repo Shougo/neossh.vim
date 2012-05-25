@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 13 May 2012.
+" Last Modified: 25 May 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -153,8 +153,8 @@ let s:kind.action_table.vimfiler__shell = {
       \ 'is_listed' : 0,
       \ }
 function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
-  let vimfiler_current_dir =
-        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+  let vimfiler_current_dir = get(unite#get_context(),
+        \  'vimfiler__current_directory', '')
   if vimfiler_current_dir =~ '/$'
     let vimfiler_current_dir = vimfiler_current_dir[: -2]
   endif
@@ -163,8 +163,23 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
     return
   endif
 
-  VimShellInteractive
-        \ `=g:unite_kind_file_ssh_command.' '.vimfiler_current_dir`
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(
+        \     vimfiler_current_dir)
+  let command = substitute(g:unite_kind_file_ssh_command,
+        \   '\<PORT\>', port, 'g')
+  execute 'VimShellInteractive' command hostname
+
+  " Change directory.
+  call setline(line('.'),
+        \ printf('%s cd %s', getline('.'), escape(path, '\ ')))
+  call vimshell#execute_current_line(1)
+
+  let files = get(unite#get_context(), 'vimfiler__files', [])
+  if !empty(files)
+    call setline(line('.'), getline('.') . ' ' . join(files))
+    normal! l
+  endif
 endfunction"}}}
 
 let s:kind.action_table.vimfiler__shellcmd = {

@@ -226,8 +226,10 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
         \ unite#sources#ssh#parse_path(join(a:args, ':'))
   if hostname == ''
     " No hostname.
-    return unite#sources#ssh#complete_host(
-          \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos)
+    return map(unite#sources#ssh#complete_host(
+          \ a:args, a:context, substitute(a:arglead, '^//', '', ''),
+          \  a:cmdline, a:cursorpos),
+          \   "'//' . v:val")
   else
     return unite#sources#ssh#complete_file(
           \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos)
@@ -341,18 +343,35 @@ function! unite#sources#ssh#command_complete_file(arglead, cmdline, cursorpos)"{
 endfunction"}}}
 function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{{{
   let _ = []
-  for line in readfile('/etc/hosts')
-    let host = matchstr(line, '^[[:alnum:].-]\+')
-    if host != ''
-      call add(_, host)
-    endif
-  endfor
-  for line in readfile('/.ssh/config')
-    let host = matchstr(line, '^Host\s\+\zs[^*]\+\ze')
-    if host != ''
-      call add(_, host)
-    endif
-  endfor
+
+  if filereadable('/etc/hosts')
+    for line in filter(
+          \ readfile('/etc/hosts'), "v:val !~ '^\\s*#'")
+      let host = matchstr(line, '\f\+$')
+      if host != ''
+        call add(_, host)
+      endif
+    endfor
+  endif
+
+  if filereadable(expand('~/.ssh/config'))
+    for line in readfile(expand('~/.ssh/config'))
+      let host = matchstr(line, '^Host\s\+\zs[^*]\+\ze')
+      if host != ''
+        call add(_, host)
+      endif
+    endfor
+  endif
+
+  if filereadable(expand('~/.ssh/known_hosts'))
+    for line in filter(
+          \ readfile(expand('~/.ssh/known_hosts')), "v:val !~ '^|'")
+      let host = matchstr(line, '^[^,]*')
+      if host != ''
+        call add(_, host)
+      endif
+    endfor
+  endif
 
   return sort(filter(_, 'stridx(v:val, a:arglead) == 0'))
 endfunction"}}}

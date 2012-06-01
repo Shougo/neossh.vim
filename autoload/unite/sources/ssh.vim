@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 25 May 2012.
+" Last Modified: 01 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -384,7 +384,7 @@ function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{
     for line in filter(
           \ readfile(expand('~/.ssh/known_hosts')),
           \        "v:val !~ '^[|\\[]'")
-      let host = matchstr(line, '^[^,]*')
+      let host = matchstr(line, '^[^, ]*')
       if host != ''
         call add(_, host)
       endif

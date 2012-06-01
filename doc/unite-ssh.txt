@@ -114,6 +114,7 @@ CHANGELOG					*unite-changelog*
 
 2012-06-01
 - Added preview action.
+- Fixed hostname completion.
 
 2012-05-25
 - Fixed path error.

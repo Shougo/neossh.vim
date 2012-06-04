@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 01 Jun 2012.
+" Last Modified: 04 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -87,10 +87,10 @@ function! s:source.change_candidates(args, context)"{{{
         \   hostname.':'.port.'/'.input_directory.v:val, hostname)")
 
   if !is_vimfiler
-    if g:unite_source_file_ignore_pattern != ''
+    if g:unite_source_file_ssh_ignore_pattern != ''
       call filter(files,
             \ 'v:val.action__path !~ '
-            \  . string(g:unite_source_file_ignore_pattern))
+            \  . string(g:unite_source_file_ssh_ignore_pattern))
     endif
 
     let files = sort(filter(copy(files),

@@ -49,7 +49,7 @@ call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_delete_directory_command',
       \ 'rm -r $srcs')
 call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_delete_directory_command',
+      \ 'g:unite_kind_file_ssh_move_command',
       \ 'mv $srcs $dest')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_mkdir_command',
@@ -210,9 +210,13 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
     return
   endif
 
-  let [port, path] =
-        \ unite#sources#ssh#parse_action_path(dirname)
-  if unite#kinds#file_ssh#external('mkdir', port, path, [])
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(dirname)
+  let command_line = unite#kinds#file_ssh#substitute_command(
+        \ 'mkdir', port, '', [path])
+
+  if unite#sources#ssh#ssh_command(
+        \ command_line, hostname, port, '')
     call unite#print_error(printf('Failed mkdir "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
   endif
@@ -293,12 +297,15 @@ function! s:kind.action_table.vimfiler__rename.func(candidate)"{{{
         \       'customlist,unite#sources#ssh#command_complete_file')
   redraw
 
-  let [port, src_path] =
-        \ unite#sources#ssh#parse_action_path(a:candidate.action__path)
-  let [port, dest_path] =
-        \ unite#sources#ssh#parse_action_path(filename)
-  if unite#kinds#file_ssh#external('move',
-        \ port, dest_path, [src_path])
+  let [hostname, port, src_path] =
+        \ unite#sources#ssh#parse_path(a:candidate.action__path)
+  let [hostname, port, dest_path] =
+        \ unite#sources#ssh#parse_path(filename)
+  let command_line = unite#kinds#file_ssh#substitute_command(
+        \ 'move', port, dest_path, [src_path])
+
+  if unite#sources#ssh#ssh_command(
+        \ command_line, hostname, port, '')
     call unite#print_error(printf('Failed move "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
   endif

@@ -113,8 +113,9 @@ EXAMPLES					*unite-ssh-examples*
 CHANGELOG					*unite-changelog*
 
 2012-06-20
-- Fixed copy and move files.
-- Fixed delete files.
+- Fixed for copy and move files.
+- Fixed for delete files.
+- Fixed for rename.
 
 2012-06-04
 - Fixed ignore pattern.

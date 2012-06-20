@@ -31,11 +31,11 @@ set cpo&vim
 " External commands.
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_command',
-      \ 'ssh -p PORT')
+      \ 'ssh -p PORT HOSTNAME')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_list_command',
-      \ 'HOSTNAME ls -Fa1')
-      " \ 'HOSTNAME ls -Loa')
+      \ 'ls -Fa1')
+      " \ 'ls -Loa')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_copy_directory_command',
       \ 'scp -P PORT -q -r $srcs $dest')
@@ -44,19 +44,19 @@ call unite#util#set_default(
       \ 'scp -P PORT -q $srcs $dest')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_delete_file_command',
-      \ 'ssh -p PORT rm $srcs')
+      \ 'rm $srcs')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_delete_directory_command',
-      \ 'ssh -p PORT rm -r $srcs')
+      \ 'rm -r $srcs')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_delete_directory_command',
-      \ 'ssh -p PORT mv $srcs $dest')
+      \ 'mv $srcs $dest')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_mkdir_command',
-      \ 'ssh -p PORT mkdir $dest')
+      \ 'mkdir $dest')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_newfile_command',
-      \ 'ssh -p PORT touch $dest')
+      \ 'touch $dest')
 "}}}
 
 function! unite#kinds#file_ssh#initialize()"{{{
@@ -262,11 +262,13 @@ let s:kind.action_table.vimfiler__delete = {
       \ }
 function! s:kind.action_table.vimfiler__delete.func(candidates)"{{{
   for candidate in a:candidates
-    let [port, path] =
-          \ unite#sources#ssh#parse_action_path(candidate.action__path)
+    let [hostname, port, path] =
+          \ unite#sources#ssh#parse_path(candidate.action__path)
+    let command_line = unite#kinds#file_ssh#substitute_command(
+          \ 'delete_directory', port, '', [path])
 
-    if unite#kinds#file_ssh#external('delete_directory',
-          \ port, path, [])
+    if unite#sources#ssh#ssh_command(
+          \ command_line, hostname, port, '')
       call unite#print_error(printf('Failed delete "%s" : %s',
             \ path, unite#util#get_last_errmsg()))
     endif
@@ -360,6 +362,19 @@ function! s:execute_command(command, candidate)"{{{
 endfunction"}}}
 
 function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
+  let command_line = unite#kinds#file_ssh#substitute_command(
+        \ a:command, a:port, a:dest_dir, a:src_files)
+
+  let output = unite#sources#ssh#system_passwd(command_line)
+  let status = unite#util#get_last_status()
+  if status
+    call unite#print_error(printf('Failed command_line "%s"', command_line))
+    echomsg command_line
+  endif
+
+  return status
+endfunction"}}}
+function! unite#kinds#file_ssh#substitute_command(command, port, dest_dir, src_files)"{{{
   let dest_dir = a:dest_dir
   if dest_dir =~ '/$'
     " Delete last /.
@@ -377,14 +392,7 @@ function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
   let command_line = substitute(command_line,
         \'\$dest\>', '"'.dest_dir.'"', 'g')
 
-  let output = unite#sources#ssh#system_passwd(command_line)
-  let status = unite#util#get_last_status()
-  if status
-    call unite#print_error(printf('Failed command_line "%s"', command_line))
-    echomsg command_line
-  endif
-
-  return status
+  return command_line
 endfunction"}}}
 
 let &cpo = s:save_cpo

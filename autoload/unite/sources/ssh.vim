@@ -287,7 +287,8 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
         \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
 endfunction"}}}
 function! unite#sources#ssh#parse_path(path)"{{{
-  let args = matchlist(a:path,
+  let args = matchlist(
+        \ substitute(a:path, '^ssh:', '', ''),
         \'^//\([^/#:]\+\)\%([#:]\(\d*\)\)\?/\?\(.*\)$')
 
   let hostname = get(args, 1, '')
@@ -446,8 +447,9 @@ function! s:get_filenames(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
-    let outputs = filter(s:ssh_command(a:hostname, a:port,
-          \ g:unite_kind_file_ssh_list_command, a:path),
+    let outputs = filter(unite#sources#ssh#ssh_list(
+          \ g:unite_kind_file_ssh_list_command,
+          \ a:hostname, a:port, a:path),
           \   "v:val !~ 'No such file or directory'")
     let s:filelist_cache[key] =
           \ (len(outputs) == 1 ? outputs : outputs[1:])
@@ -455,12 +457,36 @@ function! s:get_filenames(hostname, port, path, is_force)"{{{
 
   return copy(s:filelist_cache[key])
 endfunction"}}}
-function! s:ssh_command(hostname, port, command, path)"{{{
-  let command = substitute(substitute(
+function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
+  let command_line = substitute(substitute(
         \ g:unite_kind_file_ssh_command . ' ' . a:command,
-        \   '\<HOSTNAME\>', a:hostname, 'g'), '\<PORT\>', a:port, 'g')
-  return filter(split(unite#sources#ssh#system_passwd(
-        \ printf('%s ''%s''', command, fnameescape(a:path))), '\r\?\n'),
+        \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
+  if a:path != ''
+    let command_line .= ' ' . string(fnameescape(a:path))
+  endif
+
+  let output = unite#sources#ssh#system_passwd(
+        \ command_line, a:host, a:port, a:path)
+  let status = unite#util#get_last_status()
+  if status
+    call unite#print_error(printf('Failed command_line "%s"', command_line))
+    echomsg command_line
+  endif
+
+  return status
+endfunction"}}}
+function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
+  let command_line = substitute(substitute(
+        \ g:unite_kind_file_ssh_command . ' ' . a:command,
+        \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
+  if a:path != ''
+    let command_line .= ' ' . string(fnameescape(a:path))
+  endif
+
+  let output = unite#sources#ssh#system_passwd(
+        \ command_line, a:host, a:port, a:path)
+
+  return filter(split(output, '\r\?\n'),
         \ "v:val != '' && v:val !~ '^ls: '")
 endfunction"}}}
 

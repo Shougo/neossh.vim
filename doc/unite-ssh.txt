@@ -114,6 +114,7 @@ CHANGELOG					*unite-changelog*
 
 2012-06-20
 - Fixed copy and move files.
+- Fixed delete files.
 
 2012-06-04
 - Fixed ignore pattern.

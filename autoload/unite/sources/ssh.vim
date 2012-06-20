@@ -423,22 +423,32 @@ function! unite#sources#ssh#copy_files(dest, srcs)"{{{
   endfor
 endfunction"}}}
 function! unite#sources#ssh#move_files(dest, srcs)"{{{
-  let [dest_port, dest_path] =
-        \ unite#sources#ssh#parse_action_path(a:dest)
+  let [hostname, dest_port, dest_path] =
+        \ unite#sources#ssh#parse_path(a:dest)
+  if dest_path == ''
+    let dest_path = '.'
+  endif
 
   for src in a:srcs
     let port = dest_port
 
-    let [src_port, src_path] =
-        \ unite#sources#ssh#parse_action_path(src.action__path)
+    let [hostname, src_port, path] =
+          \ unite#sources#ssh#parse_path(src.action__path)
+    if path == ''
+      let path = '.'
+    endif
+
     if src_port != 22 && port != src_port
       let port = src_port
     endif
 
-    if unite#kinds#file_ssh#external('move',
-          \ port, dest_path, [src_path])
+    let command_line = unite#kinds#file_ssh#substitute_command(
+          \ 'move', port, dest_path, [path])
+
+    if unite#sources#ssh#ssh_command(
+          \ command_line, hostname, port, '')
       call unite#print_error(printf('Failed file "%s" move : %s',
-            \ src_path, unite#util#get_last_errmsg()))
+            \ path, unite#util#get_last_errmsg()))
     endif
   endfor
 endfunction"}}}

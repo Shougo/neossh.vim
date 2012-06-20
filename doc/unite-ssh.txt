@@ -116,6 +116,7 @@ CHANGELOG					*unite-changelog*
 - Fixed for copy and move files.
 - Fixed for delete files.
 - Fixed for rename.
+- Fixed for move files.
 
 2012-06-04
 - Fixed ignore pattern.

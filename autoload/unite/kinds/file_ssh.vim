@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 01 Jun 2012.
+" Last Modified: 20 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -202,7 +202,7 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
 
   let dirname = input('New directory name: ',
         \ vimfiler_current_dir . '/',
-        \ 'unite#sources#ssh#command_complete_directory')
+        \ 'customlist,unite#sources#ssh#command_complete_directory')
 
   if dirname == ''
     redraw
@@ -230,7 +230,7 @@ function! s:kind.action_table.vimfiler__newfile.func(candidate)"{{{
 
   let filename = input('New files name: ',
         \            vimfiler_current_dir . '/',
-        \            'unite#sources#ssh#command_complete_file')
+        \            'customlist,unite#sources#ssh#command_complete_file')
   if filename == ''
     redraw
     echo 'Canceled.'
@@ -288,7 +288,7 @@ function! s:kind.action_table.vimfiler__rename.func(candidate)"{{{
         \ context.action__filename :
         \ input(printf('New file name: %s -> ',
         \       a:candidate.action__path), a:candidate.action__path,
-        \       'unite#sources#ssh#command_complete_file')
+        \       'customlist,unite#sources#ssh#command_complete_file')
   redraw
 
   let [port, src_path] =
@@ -318,7 +318,7 @@ function! s:kind.action_table.vimfiler__copy.func(candidates)"{{{
         \ && context.action__directory != '' ?
         \   context.action__directory :
         \   input('Input destination directory: ', vimfiler_current_dir,
-        \     'unite#sources#ssh#command_complete_directory')
+        \     'customlist,unite#sources#ssh#command_complete_directory')
   if dest_dir !~ '/$'
     let dest_dir .= '/'
   endif
@@ -343,7 +343,7 @@ function! s:kind.action_table.vimfiler__move.func(candidates)"{{{
         \ && context.action__directory != '' ?
         \   context.action__directory :
         \   input('Input destination directory: ', vimfiler_current_dir,
-        \     'unite#sources#ssh#command_complete_directory')
+        \     'customlist,unite#sources#ssh#command_complete_directory')
   if dest_dir !~ '/$'
     let dest_dir .= '/'
   endif

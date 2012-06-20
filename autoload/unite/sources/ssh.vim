@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 04 Jun 2012.
+" Last Modified: 20 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -301,7 +301,7 @@ function! unite#sources#ssh#parse_path(path)"{{{
   return [hostname, port, path]
 endfunction"}}}
 function! unite#sources#ssh#parse_action_path(path)"{{{
-  if a:path =~ '^ssh:'
+  if a:path =~ '^ssh:\|^//'
     let [hostname, port, path] =
           \ unite#sources#ssh#parse_path(
           \  substitute(a:path, '^ssh:', '', ''))
@@ -395,10 +395,8 @@ function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{
 endfunction"}}}
 
 function! unite#sources#ssh#copy_files(dest, srcs)"{{{
-  let vimfiler_current_dir =
-        \ get(unite#get_context(), 'vimfiler__current_directory', '')
   let [dest_port, dest_path] =
-        \ unite#sources#ssh#parse_action_path(vimfiler_current_dir)
+        \ unite#sources#ssh#parse_action_path(a:dest)
 
   for src in a:srcs
     let port = dest_port
@@ -424,10 +422,8 @@ function! unite#sources#ssh#copy_files(dest, srcs)"{{{
   endfor
 endfunction"}}}
 function! unite#sources#ssh#move_files(dest, srcs)"{{{
-  let vimfiler_current_dir =
-        \ get(unite#get_context(), 'vimfiler__current_directory', '')
   let [dest_port, dest_path] =
-        \ unite#sources#ssh#parse_action_path(vimfiler_current_dir)
+        \ unite#sources#ssh#parse_action_path(a:dest)
 
   for src in a:srcs
     let port = dest_port

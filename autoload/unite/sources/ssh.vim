@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 20 Jun 2012.
+" Last Modified: 25 Jun 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -235,6 +235,22 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
     return map(unite#sources#ssh#complete_file(
           \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos),
           \   "printf('//%s', v:val)")
+  endif
+endfunction"}}}
+function! s:source.complete(args, context, arglead, cmdline, cursorpos)"{{{
+  let arg = join(a:args, ':')
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(arg)
+  if hostname == '' || arg !~ ':'
+    " No hostname.
+    return map(unite#sources#ssh#complete_host(
+          \ a:args, a:context, substitute(a:arglead, '^//', '', ''),
+          \  a:cmdline, a:cursorpos),
+          \   "'//' . v:val . ':'")
+  else
+    return filter(map(unite#sources#ssh#complete_file(
+          \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos),
+          \   "printf('//%s', v:val)"), "v:val =~ '/$'")
   endif
 endfunction"}}}
 

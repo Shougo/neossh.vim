@@ -112,6 +112,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-06-25
+- Implemented unite completion.
+
 2012-06-20
 - Fixed for copy and move files.
 - Fixed for delete files.

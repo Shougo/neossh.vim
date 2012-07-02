@@ -43,8 +43,11 @@ USAGE						*unite-ssh-usage*
 		Source arguments:
 		1. //HOSTNAME:port/path
 >
-	:Unite ssh://HOSTNAME:port/path
+	:Unite ssh://HOSTNAME:port/file_path
+	:Unite ssh://HOSTNAME:port/directory_path/
 <
+	Note: To open directory, you must add last "/".
+
 ==============================================================================
 INSTALL						*unite-ssh-install*
 
@@ -60,8 +63,10 @@ INTERFACE					*unite-ssh-interface*
 ------------------------------------------------------------------------------
 VARIABLES 					*unite-ssh-variables*
 
-g:unite_kind_file_ssh_delete_file_command		*g:unite_kind_file_ssh_delete_file_command*
-g:unite_kind_file_ssh_delete_directory_command	*g:unite_kind_file_ssh_delete_directory_command*
+g:unite_kind_file_ssh_delete_file_command
+						*g:unite_kind_file_ssh_delete_file_command*
+g:unite_kind_file_ssh_delete_directory_command
+						*g:unite_kind_file_ssh_delete_directory_command*
 		This variable controls vimfiler (and kind file) use delete
 		command.
 		
@@ -94,7 +99,7 @@ g:unite_kind_file_ssh_copy_directory_command	*g:unite_kind_file_ssh_copy_directo
 		
 		Default value is refer to autoload/unite/kinds/file_ssh.vim.
 
-g:unite_kind_file_ssh_switch_command			*g:unite_kind_file_ssh_switch_command*
+g:unite_kind_file_ssh_switch_command		*g:unite_kind_file_ssh_switch_command*
 		This variable controls vimfiler (and kind file) use switch
 		files command.
 		

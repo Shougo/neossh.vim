@@ -44,9 +44,13 @@ USAGE						*unite-ssh-usage*
 		1. //HOSTNAME:port/path
 >
 	:Unite ssh://HOSTNAME:port/file_path
-	:Unite ssh://HOSTNAME:port/directory_path/
+	:Unite ssh://HOSTNAME/file_path
+	:Unite ssh://HOSTNAME/directory_path/
+	:Unite ssh://HOSTNAME//usr/bin/
 <
 	Note: To open directory, you must add last "/".
+	Note: To open absolute path, you must use "ssh://HOSTNAME//" instead of
+	"ssh://HOSTNAME/".
 
 ==============================================================================
 INSTALL						*unite-ssh-install*
@@ -67,7 +71,7 @@ g:unite_kind_file_ssh_delete_file_command
 						*g:unite_kind_file_ssh_delete_file_command*
 g:unite_kind_file_ssh_delete_directory_command
 						*g:unite_kind_file_ssh_delete_directory_command*
-		This variable controls vimfiler (and kind file) use delete
+		This variable controls vimfiler (and kind file_ssh) use delete
 		command.
 		
 		This variable substitute special arguments:
@@ -77,7 +81,7 @@ g:unite_kind_file_ssh_delete_directory_command
 		Default value is refer to autoload/unite/kinds/file_ssh.vim.
 
 g:unite_kind_file_ssh_copy_file_command		*g:unite_kind_file_ssh_copy_file_command*
-		This variable controls vimfiler (and kind file) use copy
+		This variable controls vimfiler (and kind file_ssh) use copy
 		files command.
 		If variable is empty, this system can't support copy file.
 		
@@ -88,7 +92,7 @@ g:unite_kind_file_ssh_copy_file_command		*g:unite_kind_file_ssh_copy_file_comman
 		Default value is refer to autoload/unite/kinds/file_ssh.vim.
 
 g:unite_kind_file_ssh_copy_directory_command	*g:unite_kind_file_ssh_copy_directory_command*
-		This variable controls vimfiler (and kind file) use copy
+		This variable controls vimfiler (and kind file_ssh) use copy
 		directories command.
 		If the variable is empty, this system can't support copying
 		directories.
@@ -100,7 +104,7 @@ g:unite_kind_file_ssh_copy_directory_command	*g:unite_kind_file_ssh_copy_directo
 		Default value is refer to autoload/unite/kinds/file_ssh.vim.
 
 g:unite_kind_file_ssh_switch_command		*g:unite_kind_file_ssh_switch_command*
-		This variable controls vimfiler (and kind file) use switch
+		This variable controls vimfiler (and kind file_ssh) use switch
 		files command.
 		
 		This variable substitute special arguments:
@@ -116,6 +120,9 @@ EXAMPLES					*unite-ssh-examples*
 <
 ==============================================================================
 CHANGELOG					*unite-changelog*
+
+2012-07-02
+- Improved documentation.
 
 2012-06-25
 - Implemented unite completion.

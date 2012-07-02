@@ -38,7 +38,8 @@ USAGE						*unite-ssh-usage*
 	This source nominates ssh host files.
 	
 	Note: To avoid password input every time, we recommend you to prepare
-	the ssh key or to write "ControlMaster auto" in ~/.ssh/config.
+	the ssh key or to write "ControlMaster auto" in ~/.ssh/config(please
+	refer to Examples section).
 
 		Source arguments:
 		1. //HOSTNAME:port/path
@@ -116,13 +117,18 @@ g:unite_kind_file_ssh_switch_command		*g:unite_kind_file_ssh_switch_command*
 ==============================================================================
 EXAMPLES					*unite-ssh-examples*
 >
-	
+	# in ~/.ssh/config
+	Host *
+		ControlMaster auto
+		ControlPath ~/.ssh/master-%r@%h:%p
+		ControlPersist yes
 <
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
 2012-07-02
 - Improved documentation.
+- Added examples.
 
 2012-06-25
 - Implemented unite completion.

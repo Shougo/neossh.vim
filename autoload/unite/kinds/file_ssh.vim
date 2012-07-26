@@ -241,11 +241,15 @@ function! s:kind.action_table.vimfiler__newfile.func(candidate)"{{{
     return
   endif
 
-  let [port, path] =
-        \ unite#sources#ssh#parse_action_path(filename)
-  if unite#kinds#file_ssh#external('newfile', port, path, [])
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(filename)
+  let command_line = unite#kinds#file_ssh#substitute_command(
+        \ 'newfile', port, path, [])
+  if unite#sources#ssh#ssh_command(
+        \ command_line, hostname, port, '')
     call unite#print_error(printf('Failed newfile "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
+    return
   endif
 
   let [hostname, port, path] =

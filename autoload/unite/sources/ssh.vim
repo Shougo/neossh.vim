@@ -161,7 +161,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
   endif
 
   if !filereadable(tempname)
-    return [[], dict]
+    return ['error', 'Failed to open file.']
   endif
 
   let lazy = &lazyredraw

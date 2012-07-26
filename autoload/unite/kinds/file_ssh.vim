@@ -182,8 +182,10 @@ function! s:kind.action_table.vimfiler__shellcmd.func(candidate)"{{{
   let command_line = unite#get_context().vimfiler__command
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(vimfiler_current_dir)
-  if unite#sources#ssh#ssh_command(
+  let [status, output] = unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
+  echo substitute(output, '\r\n', '\n', 'g')
+  if status
     call unite#print_error(
           \ printf('Failed command_line "%s" : %s',
           \  command_line, unite#util#get_last_errmsg()))
@@ -214,8 +216,9 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
         \ unite#sources#ssh#parse_path(dirname)
   let command_line = unite#kinds#file_ssh#substitute_command(
         \ 'mkdir', port, path, [])
-  if unite#sources#ssh#ssh_command(
+  let [status, output] = unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
+  if status
     call unite#print_error(printf('Failed mkdir "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
   endif
@@ -244,8 +247,9 @@ function! s:kind.action_table.vimfiler__newfile.func(candidate)"{{{
         \ unite#sources#ssh#parse_path(filename)
   let command_line = unite#kinds#file_ssh#substitute_command(
         \ 'newfile', port, path, [])
-  if unite#sources#ssh#ssh_command(
+  let [status, output] = unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
+  if status
     call unite#print_error(printf('Failed newfile "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
     return
@@ -275,8 +279,9 @@ function! s:kind.action_table.vimfiler__delete.func(candidates)"{{{
     let command_line = unite#kinds#file_ssh#substitute_command(
           \ 'delete_directory', port, '', [path])
 
-    if unite#sources#ssh#ssh_command(
+    let [status, output] = unite#sources#ssh#ssh_command(
           \ command_line, hostname, port, '')
+    if status
       call unite#print_error(printf('Failed delete "%s" : %s',
             \ path, unite#util#get_last_errmsg()))
     endif
@@ -308,8 +313,9 @@ function! s:kind.action_table.vimfiler__rename.func(candidate)"{{{
   let command_line = unite#kinds#file_ssh#substitute_command(
         \ 'move', port, dest_path, [src_path])
 
-  if unite#sources#ssh#ssh_command(
+  let [status, output] = unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
+  if status
     call unite#print_error(printf('Failed move "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
   endif

@@ -464,8 +464,9 @@ function! unite#sources#ssh#move_files(dest, srcs)"{{{
     let command_line = unite#kinds#file_ssh#substitute_command(
           \ 'move', port, dest_path, [path])
 
-    if unite#sources#ssh#ssh_command(
+    let [status, output] = unite#sources#ssh#ssh_command(
           \ command_line, hostname, port, '')
+    if status
       call unite#print_error(printf('Failed file "%s" move : %s',
             \ path, unite#util#get_last_errmsg()))
     endif
@@ -496,9 +497,13 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
 
   let output = unite#sources#ssh#system_passwd(
         \ command_line, a:host, a:port, a:path)
+  if stridx(output, a:host) >= 0
+    " Strip hostname.
+    let output = output[len(a:host):]
+  endif
   let status = unite#util#get_last_status()
 
-  return status
+  return [status, output]
 endfunction"}}}
 function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
   let command_line = substitute(substitute(

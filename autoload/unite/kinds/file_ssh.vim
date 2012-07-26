@@ -182,9 +182,13 @@ function! s:kind.action_table.vimfiler__shellcmd.func(candidate)"{{{
   let command_line = unite#get_context().vimfiler__command
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(vimfiler_current_dir)
-  let [status, output] = unite#sources#ssh#ssh_command(
+  let [status, out] = unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
-  echo substitute(output, '\r\n', '\n', 'g')
+  let output = split(out, '\n\|\r\n')
+
+  if !empty(output)
+    call unite#start([['output', output]])
+  endif
   if status
     call unite#print_error(
           \ printf('Failed command_line "%s" : %s',

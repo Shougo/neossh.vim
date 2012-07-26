@@ -129,6 +129,7 @@ CHANGELOG					*unite-changelog*
 2012-07-26
 - Fixed action__directory.
 - Fixed newfile action bug.
+- Fixed make_directory action bug.
 
 2012-07-02
 - Improved documentation.

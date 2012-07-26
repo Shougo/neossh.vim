@@ -213,8 +213,7 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(dirname)
   let command_line = unite#kinds#file_ssh#substitute_command(
-        \ 'mkdir', port, '', [path])
-
+        \ 'mkdir', port, path, [])
   if unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
     call unite#print_error(printf('Failed mkdir "%s" : %s',

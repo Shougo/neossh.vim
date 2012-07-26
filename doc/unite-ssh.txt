@@ -133,6 +133,7 @@ CHANGELOG					*unite-changelog*
 - Improved ssh_command.
 - Fixed command execution.
 - Fixed for error.
+- Fixed copy files.
 
 2012-07-02
 - Improved documentation.

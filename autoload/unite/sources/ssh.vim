@@ -333,6 +333,20 @@ function! unite#sources#ssh#parse_action_path(path)"{{{
 
   return [port, path]
 endfunction"}}}
+function! unite#sources#ssh#convert2fullpath(path)"{{{
+  let path = a:path
+  let vimfiler_current_dir = get(unite#get_context(),
+        \  'vimfiler__current_directory', '')
+  let [_, vimfiler_path] =
+        \ unite#sources#ssh#parse_action_path(vimfiler_current_dir)
+  if path == ''
+    let path = vimfiler_path
+  elseif path == '.' || path == '^\./'
+    let path = vimfiler_path . path[1:]
+  endif
+
+  return path
+endfunction"}}}
 
 function! unite#sources#ssh#complete_host(args, context, arglead, cmdline, cursorpos)"{{{
   return unite#sources#ssh#command_complete_host(
@@ -415,31 +429,73 @@ function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{
 endfunction"}}}
 
 function! unite#sources#ssh#copy_files(dest, srcs)"{{{
-  let [dest_port, dest_path] =
-        \ unite#sources#ssh#parse_action_path(a:dest)
+  let [dest_host, dest_port, dest_path] =
+        \ unite#sources#ssh#parse_path(a:dest)
+  if a:dest =~ '^ssh:'
+    let dest_path = unite#sources#ssh#convert2fullpath(dest_path)
+  else
+    let dest_path = a:dest
+  endif
+
+  let ret = 1
 
   for src in a:srcs
     let port = dest_port
 
-    let [src_port, src_path] =
-        \ unite#sources#ssh#parse_action_path(src.action__path)
+    let [src_host, src_port, src_path] =
+          \ unite#sources#ssh#parse_path(src.action__path)
     if src_port != 22 && port != src_port
       let port = src_port
     endif
 
-    if fnamemodify(src_path, ':h') ==# dest_path
+    while src_host . ':' .
+          \ unite#sources#ssh#convert2fullpath(
+          \ fnamemodify(src_path, ':h')) ==#
+          \  dest_host . ':' . dest_path
       " Same filename.
       echo 'File is already exists!'
       let dest_path =
             \ input(printf('New name: %s -> ', src_path), src_path,
-            \  'unite#sources#ssh#command_complete_file')
-    endif
-    if unite#kinds#file_ssh#external('copy_directory',
-          \ port, dest_path, [src_path])
-      call unite#print_error(printf('Failed file "%s" copy : %s',
-            \ src_path, unite#util#get_last_errmsg()))
+            \  'customlist,unite#sources#ssh#command_complete_file')
+      redraw!
+
+      if dest_path == ''
+        return ret
+      endif
+    endwhile
+
+    if src_host ==# dest_host
+      " Remote to remote copy.
+
+      let command_line = unite#kinds#file_ssh#substitute_command(
+            \ 'copy_directory', port, dest_path, [src_path])
+      let [status, output] = unite#sources#ssh#ssh_command(
+            \ command_line, dest_host, port, '')
+      if status
+        call unite#print_error(printf('Failed file "%s" copy : %s',
+              \ path, unite#util#get_last_errmsg()))
+        let ret = 1
+      endif
+    else
+      " Remote to local copy.
+
+      if dest_host != ''
+        let dest_path = dest_host.':'.dest_path
+      endif
+      if src_host != ''
+        let src_path = src_host.':'.src_path
+      endif
+
+      if unite#kinds#file_ssh#external('copy_directory',
+            \ port, dest_path, [src_path])
+        call unite#print_error(printf('Failed file "%s" copy : %s',
+              \ src_path, unite#util#get_last_errmsg()))
+        let ret = 1
+      endif
     endif
   endfor
+
+  return ret
 endfunction"}}}
 function! unite#sources#ssh#move_files(dest, srcs)"{{{
   let [hostname, dest_port, dest_path] =

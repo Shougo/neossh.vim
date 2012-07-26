@@ -180,13 +180,13 @@ function! s:kind.action_table.vimfiler__shellcmd.func(candidate)"{{{
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 
   let command_line = unite#get_context().vimfiler__command
-  echo unite#sources#ssh#system_passwd(command_line)
-
-  let status = unite#util#get_last_status()
-  if status
+  let [hostname, port, path] =
+        \ unite#sources#ssh#parse_path(vimfiler_current_dir)
+  if unite#sources#ssh#ssh_command(
+        \ command_line, hostname, port, '')
     call unite#print_error(
-          \ printf('Failed command_line "%s"', command_line))
-    echomsg command_line
+          \ printf('Failed command_line "%s" : %s',
+          \  command_line, unite#util#get_last_errmsg()))
   endif
 endfunction"}}}
 

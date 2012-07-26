@@ -130,6 +130,7 @@ CHANGELOG					*unite-changelog*
 - Fixed action__directory.
 - Fixed newfile action bug.
 - Fixed make_directory action bug.
+- Improved ssh_command.
 
 2012-07-02
 - Improved documentation.

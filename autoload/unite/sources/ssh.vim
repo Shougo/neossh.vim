@@ -497,10 +497,6 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
   let output = unite#sources#ssh#system_passwd(
         \ command_line, a:host, a:port, a:path)
   let status = unite#util#get_last_status()
-  if status
-    call unite#print_error(printf('Failed command_line "%s"', command_line))
-    echomsg command_line
-  endif
 
   return status
 endfunction"}}}

@@ -126,6 +126,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-07-27
+- Fixed file operations.
+
 2012-07-26
 - Fixed action__directory.
 - Fixed newfile action bug.

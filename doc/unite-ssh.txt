@@ -1,6 +1,6 @@
 *unite-ssh.txt*	SSH source for unite.vim
 
-Version: 0.1
+Version: 1.0
 Author : Shougo <Shougo.Matsu@gmail.com>
 License: MIT license  {{{
     Permission is hereby granted, free of charge, to any person obtaining
@@ -128,6 +128,7 @@ CHANGELOG					*unite-changelog*
 
 2012-07-27
 - Fixed file operations.
+- Version 1.0.
 
 2012-07-26
 - Fixed action__directory.

@@ -495,15 +495,14 @@ function! unite#sources#ssh#copy_files(dest, srcs)"{{{
       else
         " Remote to local copy.
 
-        if dest_host != ''
-          let dest_path = dest_host.':'.dest_path
-        endif
+        let dest_remote = (dest_host != '') ?
+              \ dest_host.':'.dest_path : dest_path
         if src_host != ''
           let src_path = src_host.':'.src_path
         endif
 
         if unite#kinds#file_ssh#external('copy_directory',
-              \ port, dest_path, [src_path])
+              \ port, dest_remote, [src_path])
           call unite#print_error(printf(
                 \ 'Failed file "%s" copy : %s',
                 \ src_path, unite#util#get_last_errmsg()))

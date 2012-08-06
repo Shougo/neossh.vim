@@ -126,6 +126,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-08-06
+- Fixed dotted file problem.
+
 2012-07-27
 - Fixed file operations.
 - Version 1.0.

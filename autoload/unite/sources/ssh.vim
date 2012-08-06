@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 27 Jul 2012.
+" Last Modified: 06 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -82,9 +82,13 @@ function! s:source.change_candidates(args, context)"{{{
     let input_directory .= '/'
   endif
 
-  let files = map(s:get_filenames(hostname, port, input, a:context.is_redraw),
+  let files = map(s:get_filenames(
+        \ hostname, port, input, a:context.is_redraw),
         \ "unite#sources#ssh#create_file_dict(v:val,
         \   hostname.':'.port.'/'.input_directory.v:val, hostname)")
+
+  call filter(files, "v:val.action__path !~ "
+        \ . string('\%(^\|/\)\.\.\?$'))
 
   if !is_vimfiler
     if g:unite_source_file_ssh_ignore_pattern != ''

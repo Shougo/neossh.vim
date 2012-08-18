@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 27 Jul 2012.
+" Last Modified: 18 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -121,7 +121,7 @@ function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
   let tempname = tempname()
 
   call writefile(map(lines,
-        \ "iconv(v:val, &encoding, &fileencoding)"), tempname)
+        \ "unite#util#iconv(v:val, &encoding, &fileencoding)"), tempname)
 
   let [port, path] =
         \ unite#sources#ssh#parse_action_path(a:candidate.action__path)

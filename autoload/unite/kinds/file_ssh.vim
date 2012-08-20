@@ -178,9 +178,11 @@ function! s:kind.action_table.vimfiler__shellcmd.func(candidate)"{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 
-  let command_line = unite#get_context().vimfiler__command
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(vimfiler_current_dir)
+  let command_line = printf('cd %s && %s', string(path),
+        \ unite#get_context().vimfiler__command)
+
   let [status, out] = unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
   let output = split(out, '\n\|\r\n')

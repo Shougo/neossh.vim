@@ -131,6 +131,7 @@ CHANGELOG					*unite-changelog*
 - Fixed for symbolic link.
 - Fixed system_passwd().
 - Fixed create_file_dict problem.
+- Fixed shellcmd action.
 
 2012-08-06
 - Fixed dotted file problem.

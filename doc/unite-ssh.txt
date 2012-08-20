@@ -126,6 +126,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-08-20
+- Improved file list behavior.
+
 2012-08-06
 - Fixed dotted file problem.
 - Fixed copy files.

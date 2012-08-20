@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 06 Aug 2012.
+" Last Modified: 20 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -82,10 +82,10 @@ function! s:source.change_candidates(args, context)"{{{
     let input_directory .= '/'
   endif
 
-  let files = map(s:get_filenames(
+  let files = map(s:get_filelist(
         \ hostname, port, input, a:context.is_redraw),
         \ "unite#sources#ssh#create_file_dict(v:val,
-        \   hostname.':'.port.'/'.input_directory.v:val, hostname)")
+        \   hostname.':'.port.'/'.input_directory.v:val.filename, hostname)")
 
   call filter(files, "v:val.action__path !~ "
         \ . string('\%(^\|/\)\.\.\?$'))
@@ -264,16 +264,28 @@ function! unite#sources#ssh#system_passwd(...)"{{{
 endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
   let is_newfile = get(a:000, 0, 0)
-  let filename = substitute(a:file, '[*/@|]$', '', '')
+  let filename = substitute(a:file.filename, '[*/@|]$', '', '')
   let path = substitute(a:path, '[*/@|]$', '', '')
-  let is_directory = a:file =~ '/$'
+  let is_directory = a:file.filename =~ '/$'
 
   let dict = {
         \ 'word' : filename, 'abbr' : filename,
         \ 'action__path' : 'ssh://' . path,
         \ 'vimfiler__is_directory' : is_directory,
-        \ 'source__mode' : matchstr(a:file, '[*/@|]$'),
+        \ 'vimfiler__filesize' : a:file.filesize,
+        \ 'vimfiler__filetime' : a:file.filetime,
+        \ 'source__mode' : matchstr(a:file.filename, '[*/@|]$'),
         \}
+
+  " Use date command.
+  let dict.vimfiler__filetime = executable('date') ?
+        \ substitute(unite#util#system(printf(
+        \  'date -d %s +%%s', string(a:file.filetime))),
+        \ '\n$', '', '') : a:file.filetime
+
+  if a:file.mode =~# '^l'
+    let dict.vimfiler__ftype = 'link'
+  endif
 
   let dict.action__directory = dict.action__path
   if !is_directory
@@ -377,8 +389,8 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
   " Glob by directory name.
   let directory = substitute(path, '[^/]*$', '', '')
 
-  let files = filter(s:get_filenames(hostname, port, directory, 1),
-        \ "v:val !~ '\\.\\.\\?/$'")
+  let files = filter(map(s:get_filelist(hostname, port, directory, 1),
+        \ 'v:val.filename'), "v:val !~ '\\.\\.\\?/$'")
 
   if directory !=# path
     let narrow_path = fnamemodify(path, ':t')
@@ -604,16 +616,22 @@ function! unite#sources#ssh#delete_files(srcs)"{{{
   endfor
 endfunction"}}}
 
-function! s:get_filenames(hostname, port, path, is_force)"{{{
+function! s:get_filelist(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
-    let outputs = filter(unite#sources#ssh#ssh_list(
+    let outputs = map(filter(map(unite#sources#ssh#ssh_list(
           \ g:unite_kind_file_ssh_list_command,
           \ a:hostname, a:port, a:path),
-          \   "v:val !~ 'No such file or directory'")
-    let s:filelist_cache[key] =
-          \ (len(outputs) == 1 ? outputs : outputs[1:])
+          \   "split(v:val, '\\s\\+')"),
+          \ 'len(v:val) >= 8'), "{
+          \ 'mode' : v:val[0],
+          \ 'filesize' : v:val[3],
+          \ 'filetime' : join(v:val[4:6]),
+          \ 'filename' : substitute(join(v:val[7:]),
+          \         '\\s\\+->.*$', '', ''),
+          \ }")
+    let s:filelist_cache[key] = outputs
   endif
 
   return copy(s:filelist_cache[key])
@@ -637,18 +655,26 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
   return [status, output]
 endfunction"}}}
 function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
-  let command_line = substitute(substitute(
-        \ g:unite_kind_file_ssh_command . ' ' . a:command,
-        \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
-  if a:path != ''
-    let command_line .= ' ' . string(fnameescape(a:path))
-  endif
+  let lang_save = $LANG
+  try
+    let $LANG = 'C'
 
-  let output = unite#sources#ssh#system_passwd(
-        \ command_line, a:host, a:port, a:path)
+    let command_line = substitute(substitute(
+          \ g:unite_kind_file_ssh_command . ' ' . a:command,
+          \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
+    if a:path != ''
+      let command_line .= ' ' . string(fnameescape(a:path))
+    endif
+
+    let output = unite#sources#ssh#system_passwd(
+          \ command_line, a:host, a:port, a:path)
+  finally
+    let $LANG = lang_save
+  endtry
 
   return filter(split(output, '\r\?\n'),
-        \ "v:val != '' && v:val !~ '^ls: '")
+        \ "v:val != '' && v:val !~ '^ls: ' &&
+        \  v:val !~ 'No such file or directory'")
 endfunction"}}}
 
 " Add custom action table."{{{

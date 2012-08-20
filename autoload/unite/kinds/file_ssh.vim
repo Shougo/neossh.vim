@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 18 Aug 2012.
+" Last Modified: 20 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -34,8 +34,7 @@ call unite#util#set_default(
       \ 'ssh -p PORT HOSTNAME')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_list_command',
-      \ 'ls -Fa1')
-      " \ 'ls -Loa')
+      \ 'ls -LFoa')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_copy_directory_command',
       \ 'scp -P PORT -q -r $srcs $dest')

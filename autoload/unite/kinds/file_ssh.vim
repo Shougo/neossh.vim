@@ -34,7 +34,7 @@ call unite#util#set_default(
       \ 'ssh -p PORT HOSTNAME')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_list_command',
-      \ 'ls -LFoa')
+      \ 'ls -lFoa')
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_copy_directory_command',
       \ 'scp -P PORT -q -r $srcs $dest')

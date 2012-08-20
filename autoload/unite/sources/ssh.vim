@@ -318,8 +318,10 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
   endif
 
   " Todo:
-  let a:candidate.vimfiler__ftype =
-        \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
+  if !has_key(a:candidate, 'vimfiler__ftype')
+    let a:candidate.vimfiler__ftype =
+          \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
+  endif
 endfunction"}}}
 function! unite#sources#ssh#parse_path(path)"{{{
   let args = matchlist(

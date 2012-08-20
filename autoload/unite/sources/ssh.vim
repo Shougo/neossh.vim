@@ -259,8 +259,11 @@ function! s:source.complete(args, context, arglead, cmdline, cursorpos)"{{{
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
-  return call((unite#util#has_vimproc() ?
-        \ 'vimproc#system_passwd' : 'system'), a:000)
+  " Test.
+  return call('system', a:000)
+
+  " return call((unite#util#has_vimproc() ?
+  "       \ 'vimproc#system_passwd' : 'system'), a:000)
 endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
   let is_newfile = get(a:000, 0, 0)

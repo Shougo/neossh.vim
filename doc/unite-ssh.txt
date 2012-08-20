@@ -130,6 +130,7 @@ CHANGELOG					*unite-changelog*
 - Improved file list behavior.
 - Fixed for symbolic link.
 - Fixed system_passwd().
+- Fixed create_file_dict problem.
 
 2012-08-06
 - Fixed dotted file problem.

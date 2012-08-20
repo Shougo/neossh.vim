@@ -263,28 +263,34 @@ function! unite#sources#ssh#system_passwd(...)"{{{
         \ 'vimproc#system_passwd' : 'system'), a:000)
 endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
+  let is_filedict = type(a:file) == type({})
+
   let is_newfile = get(a:000, 0, 0)
-  let filename = substitute(a:file.filename, '[*/@|]$', '', '')
+  let file = (is_filedict ? a:file.filename : a:file)
+  let filename = substitute(file, '[*/@|]$', '', '')
   let path = substitute(a:path, '[*/@|]$', '', '')
-  let is_directory = a:file.filename =~ '/$'
+  let is_directory = file =~ '/$'
 
   let dict = {
         \ 'word' : filename, 'abbr' : filename,
         \ 'action__path' : 'ssh://' . path,
         \ 'vimfiler__is_directory' : is_directory,
-        \ 'vimfiler__filesize' : a:file.filesize,
-        \ 'vimfiler__filetime' : a:file.filetime,
-        \ 'source__mode' : matchstr(a:file.filename, '[*/@|]$'),
+        \ 'source__mode' : matchstr(file, '[*/@|]$'),
         \}
 
-  " Use date command.
-  let dict.vimfiler__filetime = executable('date') ?
-        \ substitute(unite#util#system(printf(
-        \  'date -d %s +%%s', string(a:file.filetime))),
-        \ '\n$', '', '') : a:file.filetime
+  if is_filedict
+    let dict.vimfiler__filetime = a:file.filetime
+    let dict.vimfiler__filesize = a:file.filesize
 
-  if a:file.mode =~# '^l'
-    let dict.vimfiler__ftype = 'link'
+    " Use date command.
+    let dict.vimfiler__filetime = executable('date') ?
+          \ substitute(unite#util#system(printf(
+          \  'date -d %s +%%s', string(a:file.filetime))),
+          \ '\n$', '', '') : a:file.filetime
+
+    if a:file.mode =~# '^l'
+      let dict.vimfiler__ftype = 'link'
+    endif
   endif
 
   let dict.action__directory = dict.action__path

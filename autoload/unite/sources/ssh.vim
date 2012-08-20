@@ -259,11 +259,8 @@ function! s:source.complete(args, context, arglead, cmdline, cursorpos)"{{{
 endfunction"}}}
 
 function! unite#sources#ssh#system_passwd(...)"{{{
-  " Test.
-  return call('system', a:000)
-
-  " return call((unite#util#has_vimproc() ?
-  "       \ 'vimproc#system_passwd' : 'system'), a:000)
+  return call((unite#util#has_vimproc() ?
+        \ 'vimproc#system_passwd' : 'system'), a:000)
 endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
   let is_newfile = get(a:000, 0, 0)
@@ -649,8 +646,7 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
     let command_line .= ' ' . string(fnameescape(a:path))
   endif
 
-  let output = unite#sources#ssh#system_passwd(
-        \ command_line, a:host, a:port, a:path)
+  let output = unite#sources#ssh#system_passwd(command_line)
   if stridx(output, a:host) >= 0
     " Strip hostname.
     let output = output[len(a:host):]
@@ -671,8 +667,7 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
       let command_line .= ' ' . string(fnameescape(a:path))
     endif
 
-    let output = unite#sources#ssh#system_passwd(
-          \ command_line, a:host, a:port, a:path)
+    let output = unite#sources#ssh#system_passwd(command_line)
   finally
     let $LANG = lang_save
   endtry

@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 20 Aug 2012.
+" Last Modified: 21 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -185,6 +185,9 @@ function! s:kind.action_table.vimfiler__shellcmd.func(candidate)"{{{
 
   let [status, out] = unite#sources#ssh#ssh_command(
         \ command_line, hostname, port, '')
+  if g:unite_source_ssh_enable_debug
+    echomsg out
+  endif
   let output = split(out, '\n\|\r\n')
 
   if !empty(output)
@@ -376,6 +379,9 @@ function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
         \ a:command, a:port, a:dest_dir, a:src_files)
 
   let output = unite#sources#ssh#system_passwd(command_line)
+  if g:unite_source_ssh_enable_debug
+    echomsg output
+  endif
   let status = unite#util#get_last_status()
   if status
     call unite#print_error(printf('Failed command_line "%s"', command_line))

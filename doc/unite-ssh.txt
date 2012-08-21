@@ -126,6 +126,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-08-21
+- Added g:unite_source_ssh_enable_debug option.
+
 2012-08-20
 - Improved file list behavior.
 - Fixed for symbolic link.

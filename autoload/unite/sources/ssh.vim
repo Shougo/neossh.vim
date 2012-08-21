@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 20 Aug 2012.
+" Last Modified: 21 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -28,8 +28,10 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 " Variables  "{{{
-call unite#util#set_default('g:unite_source_file_ssh_ignore_pattern',
+call unite#util#set_default('g:unite_source_ssh_ignore_pattern',
       \'^\%(/\|\a\+:/\)$\|\%(^\|/\)\.\.\?$\|\~$\|\.\%(o|exe|dll|bak|sw[po]\)$')
+call unite#util#set_default(
+      \ 'g:unite_source_ssh_enable_debug', 0)
 "}}}
 
 call unite#kinds#file_ssh#initialize()
@@ -91,10 +93,10 @@ function! s:source.change_candidates(args, context)"{{{
         \ . string('\%(^\|/\)\.\.\?$'))
 
   if !is_vimfiler
-    if g:unite_source_file_ssh_ignore_pattern != ''
+    if g:unite_source_ssh_ignore_pattern != ''
       call filter(files,
             \ 'v:val.action__path !~ '
-            \  . string(g:unite_source_file_ssh_ignore_pattern))
+            \  . string(g:unite_source_ssh_ignore_pattern))
     endif
 
     let files = sort(filter(copy(files),
@@ -657,6 +659,9 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
     " Strip hostname.
     let output = output[len(a:host):]
   endif
+  if g:unite_source_ssh_enable_debug
+    echomsg output
+  endif
   let status = unite#util#get_last_status()
 
   return [status, output]
@@ -677,6 +682,10 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
   finally
     let $LANG = lang_save
   endtry
+
+  if g:unite_source_ssh_enable_debug
+    echomsg output
+  endif
 
   return filter(split(output, '\r\?\n'),
         \ "v:val != '' && v:val !~ '^ls: ' &&

@@ -88,6 +88,9 @@ function! s:source.change_candidates(args, context)"{{{
         \ hostname, port, input, a:context.is_redraw),
         \ "unite#sources#ssh#create_file_dict(v:val,
         \   hostname.':'.port.'/'.input_directory.v:val.filename, hostname)")
+  if g:unite_source_ssh_enable_debug
+    echomsg 'files = ' . string(map(copy(files), 'v:val.word'))
+  endif
 
   call filter(files, "v:val.action__path !~ "
         \ . string('\%(^\|/\)\.\.\?$'))
@@ -660,7 +663,8 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
     let output = output[len(a:host):]
   endif
   if g:unite_source_ssh_enable_debug
-    echomsg output
+    echomsg 'command_line = ' . command_line
+    echomsg 'output = ' . output
   endif
   let status = unite#util#get_last_status()
 
@@ -684,7 +688,8 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
   endtry
 
   if g:unite_source_ssh_enable_debug
-    echomsg output
+    echomsg 'command_line = ' . command_line
+    echomsg 'output = ' . output
   endif
 
   return filter(split(output, '\r\?\n'),

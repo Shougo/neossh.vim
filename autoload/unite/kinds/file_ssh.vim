@@ -380,7 +380,8 @@ function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
 
   let output = unite#sources#ssh#system_passwd(command_line)
   if g:unite_source_ssh_enable_debug
-    echomsg output
+    echomsg 'command_line = ' . command_line
+    echomsg 'output = ' . output
   endif
   let status = unite#util#get_last_status()
   if status

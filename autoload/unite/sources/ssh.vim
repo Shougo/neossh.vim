@@ -641,7 +641,7 @@ function! s:get_filelist(hostname, port, path, is_force)"{{{
           \ g:unite_kind_file_ssh_list_command,
           \ a:hostname, a:port, a:path),
           \   "split(v:val, '\\s\\+')"),
-          \ 'len(v:val) >= 8'), "{
+          \ 'len(v:val) >= 6'), "{
           \ 'mode' : v:val[0],
           \ 'filesize' : v:val[3],
           \ 'file_name_time' : substitute(join(v:val[4:]),

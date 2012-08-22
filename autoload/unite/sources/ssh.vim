@@ -649,25 +649,7 @@ function! s:get_filelist(hostname, port, path, is_force)"{{{
           \ }")
 
     " Parse filenames.
-    let month_pattern = '\a\+[.]\?,\?\s*'
-    let year_pattern = '\d\{2,4}'
-    let mm_pattern = '[ 0-1]\?\d'
-    let dd_pattern = '[ 0-3]\?\d[.]\?'
-    let HH_MM_pattern = '[ 0-2]\?\d:[0-5]\?\d'
-    let date_pattern = printf(
-          \'\%%(%s %s\|%s %s\|%s-%s-%s\) \%%(%s\|%s\)\s*',
-          \ month_pattern, dd_pattern,
-          \ dd_pattern, month_pattern,
-          \ year_pattern, month_pattern, dd_pattern,
-          \ HH_MM_pattern, year_pattern)
-    for file in files
-      let file.filetime = matchstr(
-            \ file.file_name_time, date_pattern)
-      let file.filename =
-            \ file.file_name_time[len(file.filetime) :]
-      let file.filetime =
-            \ substitute(file.filetime, '\s\+$', '', '')
-    endfor
+    call s:parse_filename(files)
 
     let s:filelist_cache[key] = files
   endif
@@ -721,6 +703,29 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
         \ "v:val != '' && v:val !~ '^ls: ' &&
         \  v:val !~ 'No such file or directory'")
 endfunction"}}}
+
+function! s:parse_filename(files)
+  let month_pattern = '\a\+[.]\?,\?\s*'
+  let year_pattern = '\d\{2,4}'
+  let mm_pattern = '[ 0-1]\?\d'
+  let dd_pattern = '[ 0-3]\?\d[.]\?'
+  let HH_MM_pattern = '[ 0-2]\?\d:[0-5]\?\d'
+  let date_pattern = printf(
+        \'\%%(%s %s\|%s %s\|%s-%s-%s\) \%%(%s\|%s\)\s*',
+        \ month_pattern, dd_pattern,
+        \ dd_pattern, month_pattern,
+        \ year_pattern, mm_pattern, dd_pattern,
+        \ HH_MM_pattern, year_pattern)
+
+  for file in a:files
+    let file.filetime = matchstr(
+          \ file.file_name_time, date_pattern)
+    let file.filename =
+          \ file.file_name_time[len(file.filetime) :]
+    let file.filetime =
+          \ substitute(file.filetime, '\s\+$', '', '')
+  endfor
+endfunction
 
 " Add custom action table."{{{
 let s:cdable_action_file = {

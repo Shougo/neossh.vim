@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 21 Aug 2012.
+" Last Modified: 22 Aug 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -269,9 +269,13 @@ function! unite#sources#ssh#system_passwd(...)"{{{
 endfunction"}}}
 function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
   let is_filedict = type(a:file) == type({})
+  if is_filedict
+  else
+    let file = a:file
+  endif
 
   let is_newfile = get(a:000, 0, 0)
-  let file = (is_filedict ? a:file.filename : a:file)
+  let file = is_filedict ? a:file.filename : a:file
   let filename = substitute(file, '[*/@|]$', '', '')
   let path = substitute(a:path, '[*/@|]$', '', '')
   let is_directory = file =~ '/$'
@@ -633,18 +637,38 @@ function! s:get_filelist(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
-    let outputs = map(filter(map(unite#sources#ssh#ssh_list(
+    let files = map(filter(map(unite#sources#ssh#ssh_list(
           \ g:unite_kind_file_ssh_list_command,
           \ a:hostname, a:port, a:path),
           \   "split(v:val, '\\s\\+')"),
           \ 'len(v:val) >= 8'), "{
           \ 'mode' : v:val[0],
           \ 'filesize' : v:val[3],
-          \ 'filetime' : join(v:val[4:6]),
-          \ 'filename' : substitute(join(v:val[7:]),
+          \ 'file_name_time' : substitute(join(v:val[4:]),
           \         '\\s\\+->.*$', '', ''),
           \ }")
-    let s:filelist_cache[key] = outputs
+
+    " Parse filenames.
+    let month_pattern = '\a\+[.]\?,\?\s*'
+    let year_pattern = '\d\{4}'
+    let mm_pattern = '[ 0-1]\?\d'
+    let dd_pattern = '[ 0-3]\?\d[.]\?'
+    let HH_MM_pattern = '[ 0-2]\?\d:[0-5]\?\d'
+    let date_pattern = printf(
+          \'\%%(%s %s\|%s %s\) \%%(%s\|%s\)\s*',
+          \ month_pattern, dd_pattern,
+          \ dd_pattern, month_pattern,
+          \ HH_MM_pattern, year_pattern)
+    for file in files
+      let file.filetime = matchstr(
+            \ file.file_name_time, date_pattern)
+      let file.filename =
+            \ file.file_name_time[len(file.filetime) :]
+      let file.filetime =
+            \ substitute(file.filetime, '\s\+$', '', '')
+    endfor
+
+    let s:filelist_cache[key] = files
   endif
 
   return copy(s:filelist_cache[key])

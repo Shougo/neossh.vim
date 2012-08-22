@@ -292,10 +292,14 @@ function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
     let dict.vimfiler__filesize = a:file.filesize
 
     " Use date command.
-    let dict.vimfiler__filetime = executable('date') ?
+    let date_command = unite#util#is_mac()
+          \ || executable('gdate') ? 'gdate' : 'date'
+    if executable(date_command)
+      let dict.vimfiler__filetime =
           \ substitute(unite#util#system(printf(
-          \  'date -d %s +%%s', string(a:file.filetime))),
-          \ '\n$', '', '') : a:file.filetime
+          \  '%s -d %s +%%s', date_command,
+          \ string(a:file.filetime))), '\n$', '', '')
+    endif
 
     if a:file.mode =~# '^l'
       let dict.vimfiler__ftype = 'link'

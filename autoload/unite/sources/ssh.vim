@@ -295,10 +295,13 @@ function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
     let date_command = unite#util#is_mac()
           \ || executable('gdate') ? 'gdate' : 'date'
     if executable(date_command)
-      let dict.vimfiler__filetime =
-          \ substitute(unite#util#system(printf(
-          \  '%s -d %s +%%s', date_command,
-          \ string(a:file.filetime))), '\n$', '', '')
+      let output = unite#util#system(
+            \ printf('%s -d %s +%%s', date_command,
+          \ string(a:file.filetime)))
+      if output !~ 'usage:'
+        " Ignore error message.
+        let dict.vimfiler__filetime = substitute(output, '\n$', '', '')
+      endif
     endif
 
     if a:file.mode =~# '^l'

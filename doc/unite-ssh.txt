@@ -126,6 +126,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-09-03
+- Added readable check.
+
 2012-08-22
 - Improved parse filenames.
 - Fixed use date command.

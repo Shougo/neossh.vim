@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 22 Aug 2012.
+" Last Modified: 03 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -307,6 +307,9 @@ function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
     if a:file.mode =~# '^l'
       let dict.vimfiler__ftype = 'link'
     endif
+
+    let dict.vimfiler__is_readable = (a:file.mode =~# 'r.x$')
+    let dict.vimfiler__is_writable = (a:file.mode =~# '.w.$')
   endif
 
   let dict.action__directory = dict.action__path

@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 03 Sep 2012.
+" Last Modified: 05 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -689,11 +689,13 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
 endfunction"}}}
 function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
   let lang_save = $LANG
+  let locale_save = $LC_TIME
   try
     let $LANG = 'C'
 
     let command_line = substitute(substitute(
-          \ g:unite_kind_file_ssh_command . ' ' . a:command,
+          \ printf('%s %s',
+          \   g:unite_kind_file_ssh_command, string('LC_TIME=C ' . a:command)),
           \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
     if a:path != ''
       let command_line .= ' ' . string(fnameescape(a:path))
@@ -702,6 +704,7 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
     let output = unite#sources#ssh#system_passwd(command_line)
   finally
     let $LANG = lang_save
+    let $LC_TIME = lang_save
   endtry
 
   if g:unite_source_ssh_enable_debug

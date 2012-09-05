@@ -126,6 +126,9 @@ EXAMPLES					*unite-ssh-examples*
 ==============================================================================
 CHANGELOG					*unite-changelog*
 
+2012-09-05
+- Fixed for locale.
+
 2012-09-03
 - Added readable check.
 - Fixed mkdir action.

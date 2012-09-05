@@ -694,8 +694,8 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
     let $LANG = 'C'
 
     let command_line = substitute(substitute(
-          \ printf('%s ''sh -c "%s"''', g:unite_kind_file_ssh_command,
-          \  string('LC_TIME=C ' . a:command)),
+          \ printf('%s ''sh -c "LC_TIME=C %s %s"''',
+          \ g:unite_kind_file_ssh_command, a:command, a:path),
           \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
     if a:path != ''
       let command_line .= ' ' . string(fnameescape(a:path))

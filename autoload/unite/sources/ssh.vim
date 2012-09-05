@@ -46,6 +46,7 @@ let s:source = {
       \}
 
 let s:filelist_cache = {}
+let s:id_cache = {}
 
 function! s:source.change_candidates(args, context)"{{{
   let args = join(a:args, ':')
@@ -308,8 +309,14 @@ function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
       let dict.vimfiler__ftype = 'link'
     endif
 
-    let dict.vimfiler__is_readable = (a:file.mode =~# 'r.x$')
-    let dict.vimfiler__is_writable = (a:file.mode =~# '.w.$')
+    let id = s:get_id(a:hostname)
+    let mode =
+          \ a:file.owner ==# id.user  ? a:file.mode[1 : 3] :
+          \ a:file.group ==# id.group ? a:file.mode[4 : 6] :
+          \                             a:file.mode[7 :  ]
+
+    let dict.vimfiler__is_readable = (mode =~# '^r.x$')
+    let dict.vimfiler__is_writable = (mode =~# '^.w.$')
   endif
 
   let dict.action__directory = dict.action__path
@@ -645,6 +652,14 @@ endfunction"}}}
 
 function! s:get_filelist(hostname, port, path, is_force)"{{{
   let key = a:hostname.':'.a:path
+  if !has_key(s:id_cache, a:hostname)
+    let id = unite#sources#ssh#system_passwd('id')
+    let s:id_cache[a:hostname] = {
+          \ 'user' : matchstr(id, 'uid=\d\+(\zs.\{-}\ze)'),
+          \ 'group' : matchstr(id, 'gid=\d\+(\zs.\{-}\ze)'),
+          \ }
+  endif
+
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
     let files = map(filter(map(unite#sources#ssh#ssh_list(
@@ -667,6 +682,9 @@ function! s:get_filelist(hostname, port, path, is_force)"{{{
   endif
 
   return copy(s:filelist_cache[key])
+endfunction"}}}
+function! s:get_id(hostname)"{{{
+  return get(s:id_cache, a:hostname, {'user' : '', 'group': ''})
 endfunction"}}}
 function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
   let command_line = substitute(substitute(

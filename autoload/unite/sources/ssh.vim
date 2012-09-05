@@ -653,8 +653,10 @@ function! s:get_filelist(hostname, port, path, is_force)"{{{
           \   "split(v:val, '\\s\\+')"),
           \ 'len(v:val) >= 6'), "{
           \ 'mode' : v:val[0],
-          \ 'filesize' : v:val[3],
-          \ 'file_name_time' : substitute(join(v:val[4:]),
+          \ 'owner' : v:val[2],
+          \ 'group' : v:val[3],
+          \ 'filesize' : v:val[4],
+          \ 'file_name_time' : substitute(join(v:val[5:]),
           \         '\\s\\+->.*$', '', ''),
           \ }")
 

@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 05 Sep 2012.
+" Last Modified: 07 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -244,9 +244,12 @@ let s:kind.action_table.vimfiler__newfile = {
 function! s:kind.action_table.vimfiler__newfile.func(candidate)"{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
+  if vimfiler_current_dir !~ '/$'
+    let vimfiler_current_dir .= '/'
+  endif
 
   let filename = input('New files name: ',
-        \            vimfiler_current_dir . '/',
+        \            vimfiler_current_dir,
         \            'customlist,unite#sources#ssh#command_complete_file')
   if filename == ''
     redraw

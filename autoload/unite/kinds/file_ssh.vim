@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 07 Sep 2012.
+" Last Modified: 13 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -71,7 +71,7 @@ let s:kind = {
       \ 'name' : 'file/ssh',
       \ 'default_action' : 'open',
       \ 'action_table' : {},
-      \ 'parents' : ['openable', 'cdable', 'uri'],
+      \ 'parents' : ['openable', 'uri'],
       \}
 
 " Actions"{{{
@@ -107,6 +107,44 @@ function! s:kind.action_table.preview.func(candidate)"{{{
   endif
 
   call s:execute_command('pedit', a:candidate)
+endfunction"}}}
+
+let s:kind.action_table.cd = {
+      \ 'description' : 'change vimfiler current directory',
+      \ }
+function! s:kind.action_table.cd.func(candidate)"{{{
+  if &filetype ==# 'vimfiler'
+    call vimfiler#mappings#cd(a:candidate.action__directory)
+    call s:move_vimfiler_cursor(a:candidate)
+  endif
+endfunction"}}}
+
+let s:kind.action_table.lcd = {
+      \ 'description' : 'change vimfiler current directory',
+      \ }
+function! s:kind.action_table.lcd.func(candidate)"{{{
+  if &filetype ==# 'vimfiler'
+    call vimfiler#mappings#cd(a:candidate.action__directory)
+    call s:move_vimfiler_cursor(a:candidate)
+  endif
+endfunction"}}}
+
+let s:kind.action_table.narrow = {
+      \ 'description' : 'narrowing candidates by directory name',
+      \ 'is_quit' : 0,
+      \ }
+function! s:kind.action_table.narrow.func(candidate)"{{{
+  if a:candidate.word =~ '^\.\.\?/'
+    let word = a:candidate.word
+  else
+    let word = a:candidate.action__directory
+  endif
+
+  if word !~ '[\\/]$'
+    let word .= '/'
+  endif
+
+  call unite#mappings#narrowing(word)
 endfunction"}}}
 
 let s:kind.action_table.vimfiler__write = {
@@ -378,6 +416,17 @@ endfunction"}}}
 function! s:execute_command(command, candidate)"{{{
   call unite#util#smart_execute_command(a:command,
         \ a:candidate.action__path)
+endfunction"}}}
+function! s:move_vimfiler_cursor(candidate)"{{{
+  if &filetype !=# 'vimfiler'
+    return
+  endif
+
+  if has_key(a:candidate, 'action__path')
+        \ && a:candidate.action__directory !=# a:candidate.action__path
+    " Move cursor.
+    call vimfiler#mappings#search_cursor(a:candidate.action__path)
+  endif
 endfunction"}}}
 
 function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{

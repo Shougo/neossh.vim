@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 05 Sep 2012.
+" Last Modified: 13 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -485,7 +485,7 @@ function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{
     endfor
   endif
 
-  return sort(filter(_, 'stridx(v:val, a:arglead) == 0'))
+  return sort(unite#util#uniq(filter(_, 'stridx(v:val, a:arglead) == 0')))
 endfunction"}}}
 
 function! unite#sources#ssh#copy_files(dest, srcs)"{{{

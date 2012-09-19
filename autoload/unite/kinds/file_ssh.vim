@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 13 Sep 2012.
+" Last Modified: 19 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -152,13 +152,14 @@ let s:kind.action_table.vimfiler__write = {
       \ }
 function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
   let context = unite#get_context()
-  let lines = getline(context.vimfiler__line1, context.vimfiler__line2)
+  let lines = split(unite#util#iconv(
+        \ join(getline(context.vimfiler__line1, context.vimfiler__line2), "\n"),
+        \ &encoding, &fileencoding), "\n")
 
   " Use temporary file.
   let tempname = tempname()
 
-  call writefile(map(lines,
-        \ "unite#util#iconv(v:val, &encoding, &fileencoding)"), tempname)
+  call writefile(lines, tempname)
 
   let [port, path] =
         \ unite#sources#ssh#parse_action_path(a:candidate.action__path)

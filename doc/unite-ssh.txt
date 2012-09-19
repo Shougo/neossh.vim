@@ -139,6 +139,7 @@ CHANGELOG					*unite-ssh-changelog*
 
 2012-09-19
 - Added FAQ section.
+- Fixed encoding conversion.
 
 2012-09-13
 - Added cd and lcd actions.

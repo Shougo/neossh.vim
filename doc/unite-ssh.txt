@@ -30,6 +30,7 @@ Interface		|unite-ssh-interface|
   Variables		  |unite-ssh-variables|
     Sources variables	    |unite-ssh-sshers-variables|
 Configulation Examples	|unite-ssh-ssher-examples|
+FAQ			|unite-ssh-faq|
 Changelog		|unite-ssh-changelog|
 
 ==============================================================================
@@ -124,7 +125,20 @@ EXAMPLES					*unite-ssh-examples*
 		ControlPersist yes
 <
 ==============================================================================
-CHANGELOG					*unite-changelog*
+FAQ						*unite-ssh-faq*
+
+Q: I want to create new file in remote server.
+
+A:
+>
+	:VimFiler ssh://server:22/dir/newfile
+<
+
+==============================================================================
+CHANGELOG					*unite-ssh-changelog*
+
+2012-09-19
+- Added FAQ section.
 
 2012-09-13
 - Added cd and lcd actions.

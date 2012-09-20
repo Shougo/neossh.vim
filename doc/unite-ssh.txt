@@ -137,6 +137,9 @@ A:
 ==============================================================================
 CHANGELOG					*unite-ssh-changelog*
 
+2012-09-20
+- Creatable file.
+
 2012-09-19
 - Added FAQ section.
 - Fixed encoding conversion.

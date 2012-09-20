@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 13 Sep 2012.
+" Last Modified: 20 Sep 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -165,13 +165,15 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
         \ printf('%s:%d/%s', hostname, port, path), hostname)
   call unite#sources#ssh#create_vimfiler_dict(dict)
   if unite#kinds#file_ssh#external('copy_file', port, tempname, [
-        \ printf('%s:%s', hostname, path) ])
+        \ printf('%s:%s', hostname, path) ]) &&
+        \ unite#util#get_last_errmsg() !~? 'No such file or directory'
     call unite#print_error(printf('Failed file "%s" copy : %s',
           \ path, unite#util#get_last_errmsg()))
   endif
 
   if !filereadable(tempname)
-    return ['error', 'Failed to open file.']
+    " Create file.
+    call writefile([], tempname)
   endif
 
   let lazy = &lazyredraw

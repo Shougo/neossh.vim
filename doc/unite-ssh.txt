@@ -28,8 +28,7 @@ Usage			|unite-ssh-usage|
 Install			|unite-ssh-install|
 Interface		|unite-ssh-interface|
   Variables		  |unite-ssh-variables|
-    Sources variables	    |unite-ssh-sshers-variables|
-Configulation Examples	|unite-ssh-ssher-examples|
+Configulation Examples	|unite-ssh-examples|
 FAQ			|unite-ssh-faq|
 Changelog		|unite-ssh-changelog|
 

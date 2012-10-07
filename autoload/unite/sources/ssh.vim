@@ -694,9 +694,8 @@ function! s:get_id(hostname)"{{{
   return get(s:id_cache, a:hostname, {'user' : '', 'group': ''})
 endfunction"}}}
 function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
-  let command_line = substitute(substitute(
-        \ g:unite_kind_file_ssh_command . ' ' . a:command,
-        \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
+  let command_line = unite#sources#ssh#substitute_command(
+        \ g:unite_kind_file_ssh_command . ' ' . a:command, a:host, a:port)
   if a:path != ''
     let command_line .= ' ' . string(fnameescape(a:path))
   endif
@@ -720,10 +719,10 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
   try
     let $LANG = 'C'
 
-    let command_line = substitute(substitute(
+    let command_line = unite#sources#ssh#substitute_command(
           \ printf('%s ''sh -c "LC_TIME=C %s %s"''',
           \ g:unite_kind_file_ssh_command, a:command, a:path),
-          \   '\<HOSTNAME\>', a:host, 'g'), '\<PORT\>', a:port, 'g')
+          \ a:host, a:port)
     if a:path != ''
       let command_line .= ' ' . string(fnameescape(a:path))
     endif
@@ -742,6 +741,12 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
   return filter(split(output, '\r\?\n'),
         \ "v:val != '' && v:val !~ '^ls: ' &&
         \  v:val !~ 'No such file or directory'")
+endfunction"}}}
+function! unite#sources#ssh#substitute_command(command, host, port)"{{{
+  return substitute(substitute(a:command,
+          \   '\<HOSTNAME\>', a:host, 'g'),
+          \   '\s\zs\(-[[:alnum:]-]\+\s\+\)\?PORT\>',
+          \      (a:port == 22 ? '' : '\1'.a:port), 'g')
 endfunction"}}}
 
 function! s:parse_filename(files)

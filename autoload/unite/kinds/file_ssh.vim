@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 20 Sep 2012.
+" Last Modified: 07 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -193,9 +193,9 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(
         \     vimfiler_current_dir)
-  let command = substitute(g:unite_kind_file_ssh_command,
-        \   '\<PORT\>', port, 'g')
-  execute 'VimShellInteractive' command hostname
+  let command_line = unite#sources#ssh#substitute_command(
+        \ g:unite_kind_file_ssh_command, hostname, a:port)
+  execute 'VimShellInteractive' command
 
   " Change directory.
   call setline(line('.'),
@@ -455,9 +455,8 @@ function! unite#kinds#file_ssh#substitute_command(command, port, dest_dir, src_f
   endif
 
   let src_files = map(a:src_files, 'substitute(v:val, "/$", "", "")')
-  let command_line = substitute(
-        \ g:unite_kind_file_ssh_{a:command}_command,
-        \ '\<PORT\>', a:port, 'g')
+  let command_line = unite#sources#ssh#substitute_command(
+        \ g:unite_kind_file_ssh_{a:command}_command, '', a:port)
 
   " Substitute pattern.
   let command_line = substitute(command_line,

@@ -371,6 +371,7 @@ function! unite#sources#ssh#parse_path(path)"{{{
   let path = get(args, 3, '')
 
   if g:unite_source_ssh_enable_debug
+    echomsg 'path = ' . a:path
     echomsg 'parse_result = ' . string([hostname, port, path])
   endif
 

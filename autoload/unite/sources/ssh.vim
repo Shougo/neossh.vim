@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 20 Sep 2012.
+" Last Modified: 07 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -369,6 +369,10 @@ function! unite#sources#ssh#parse_path(path)"{{{
     let port = 22
   endif
   let path = get(args, 3, '')
+
+  if g:unite_source_ssh_enable_debug
+    echomsg 'parse_result = ' . string([hostname, port, path])
+  endif
 
   return [hostname, port, path]
 endfunction"}}}

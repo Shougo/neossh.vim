@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 07 Oct 2012.
+" Last Modified: 09 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -394,8 +394,9 @@ function! unite#sources#ssh#convert2fullpath(path)"{{{
   let path = a:path
   let vimfiler_current_dir = get(unite#get_context(),
         \  'vimfiler__current_directory', '')
-  let [_, vimfiler_path] =
+  let [port, vimfiler_path] =
         \ unite#sources#ssh#parse_action_path(vimfiler_current_dir)
+  let vimfiler_path .= ':' . port . '/'
   if path == ''
     let path = vimfiler_path
   elseif path == '.' || path == '^\./'
@@ -509,8 +510,8 @@ function! unite#sources#ssh#copy_files(dest, srcs)"{{{
 
     if src_host ==# dest_host
       " Remote to remote copy.
-      while unite#sources#ssh#convert2fullpath(
-            \ fnamemodify(src_path, ':h')) ==# dest_path
+      while fnamemodify(src.action__path, ':h') ==#
+            \ 'ssh:' . substitute(dest_path, '/\.\?/\?$', '', '')
         " Same filename.
         echo 'File is already exists!'
         let dest_path =
@@ -532,7 +533,7 @@ function! unite#sources#ssh#copy_files(dest, srcs)"{{{
       if status
         call unite#print_error(printf(
               \ 'Failed file "%s" copy : %s',
-              \ path, unite#util#get_last_errmsg()))
+              \ src_path, unite#util#get_last_errmsg()))
         let ret = 1
       endif
     else
@@ -581,8 +582,8 @@ function! unite#sources#ssh#move_files(dest, srcs)"{{{
 
     if src_host ==# dest_host
       " Remote to remote move.
-      while unite#sources#ssh#convert2fullpath(
-            \ fnamemodify(src_path, ':h')) ==# dest_path
+      while fnamemodify(src.action__path, ':h') ==#
+            \ 'ssh:' . substitute(dest_path, '/\.\?/\?$', '', '')
         " Same filename.
         echo 'File is already exists!'
         let dest_path =

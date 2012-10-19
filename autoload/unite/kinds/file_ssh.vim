@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 07 Oct 2012.
+" Last Modified: 19 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -244,10 +244,12 @@ let s:kind.action_table.vimfiler__mkdir = {
       \ 'is_quit' : 0,
       \ 'is_invalidate_cache' : 1,
       \ 'is_listed' : 0,
+      \ 'is_selectable' : 1,
       \ }
-function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
+function! s:kind.action_table.vimfiler__mkdir.func(candidates)"{{{
+  let context = unite#get_context()
   let vimfiler_current_dir =
-        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+        \ get(context, 'vimfiler__current_directory', '')
   if vimfiler_current_dir !~ '/$'
     let vimfiler_current_dir .= '/'
   endif
@@ -271,6 +273,12 @@ function! s:kind.action_table.vimfiler__mkdir.func(candidate)"{{{
   if status
     call unite#print_error(printf('Failed mkdir "%s" : %s',
           \ path, unite#util#get_last_errmsg()))
+    return
+  endif
+
+  " Move marked files.
+  if !get(context, 'vimfiler__is_dummy', 1)
+    call unite#sources#ssh#move_files(dirname, a:candidates)
   endif
 endfunction"}}}
 

@@ -136,6 +136,9 @@ A:
 ==============================================================================
 CHANGELOG					*unite-ssh-changelog*
 
+2012-10-19
+- Improved mkdir action.
+
 2012-10-07
 - Improved command substitution.
 

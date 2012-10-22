@@ -56,11 +56,12 @@ USAGE						*unite-ssh-usage*
 ==============================================================================
 INSTALL						*unite-ssh-install*
 
-Requirements: unite.vim and ssh commands.
-Recommended: vimproc.
+Requirements: unite.vim and vimproc and ssh commands.
+Recommended: vimfiler.
 
 https://github.com/Shougo/unite.vim
 https://github.com/Shougo/vimproc
+https://github.com/Shougo/vimfiler
 
 ==============================================================================
 INTERFACE					*unite-ssh-interface*

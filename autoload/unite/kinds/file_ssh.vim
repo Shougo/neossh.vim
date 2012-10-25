@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 19 Oct 2012.
+" Last Modified: 25 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -194,7 +194,7 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
         \ unite#sources#ssh#parse_path(
         \     vimfiler_current_dir)
   let command_line = unite#sources#ssh#substitute_command(
-        \ g:unite_kind_file_ssh_command, hostname, a:port)
+        \ g:unite_kind_file_ssh_command, hostname, port)
   execute 'VimShellInteractive' command
 
   " Change directory.

@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 25 Oct 2012.
+" Last Modified: 27 Oct 2012.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -81,7 +81,7 @@ let s:kind.action_table.open = {
       \ }
 function! s:kind.action_table.open.func(candidates)"{{{
   if !get(g:, 'vimfiler_as_default_explorer', 0)
-    call unite#print_error("vimshell is not default explorer.")
+    call unite#print_error("vimfiler is not default explorer.")
     call unite#print_error("Please set g:vimfiler_as_default_explorer is 1.")
     return
   endif
@@ -101,7 +101,7 @@ let s:kind.action_table.preview = {
       \ }
 function! s:kind.action_table.preview.func(candidate)"{{{
   if !get(g:, 'vimfiler_as_default_explorer', 0)
-    call unite#print_error("vimshell is not default explorer.")
+    call unite#print_error("vimfiler is not default explorer.")
     call unite#print_error("Please set g:vimfiler_as_default_explorer is 1.")
     return
   endif

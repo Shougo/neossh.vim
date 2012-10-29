@@ -134,8 +134,23 @@ A:
 	:VimFiler ssh://server:22/dir/newfile
 <
 
+Q: I want to use proxy server to connect the server.
+
+A: You must write the settings in ~/.ssh/config.
+
+Note: This setting is slow. And may conflicts "ControlPersist" setting in
+~/.ssh/config.
+>
+	# in ~/.ssh/config
+	Host {server name}
+		ProxyCommand ssh {proxy server name} -W %h:%p
+<
+
 ==============================================================================
 CHANGELOG					*unite-ssh-changelog*
+
+2012-10-29
+- Added FAQ section.
 
 2012-10-19
 - Improved mkdir action.

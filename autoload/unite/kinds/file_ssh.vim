@@ -195,7 +195,7 @@ function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
         \     vimfiler_current_dir)
   let command_line = unite#sources#ssh#substitute_command(
         \ g:unite_kind_file_ssh_command, hostname, port)
-  execute 'VimShellInteractive' command
+  execute 'VimShellInteractive' command_line
 
   " Change directory.
   call setline(line('.'),

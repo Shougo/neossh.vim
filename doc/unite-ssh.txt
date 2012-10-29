@@ -140,10 +140,12 @@ A: You must write the settings in ~/.ssh/config.
 
 Note: This setting is slow. And may conflicts "ControlPersist" setting in
 ~/.ssh/config.
+Note: To use "-W" option, OpenSSH version must be "5.4" or above.
 >
 	# in ~/.ssh/config
 	Host {server name}
 		ProxyCommand ssh {proxy server name} -W %h:%p
+		#ProxyCommand ssh {proxy server name} nc %h %p
 <
 
 ==============================================================================

@@ -36,7 +36,7 @@ call unite#util#set_default(
 
 call unite#kinds#file_ssh#initialize()
 
-function! unite#sources#ssh#define()"{{{
+function! unite#sources#ssh#define() "{{{
   return s:source
 endfunction"}}}
 
@@ -48,7 +48,7 @@ let s:source = {
 let s:filelist_cache = {}
 let s:id_cache = {}
 
-function! s:source.change_candidates(args, context)"{{{
+function! s:source.change_candidates(args, context) "{{{
   let args = join(a:args, ':')
   let [hostname, port, path] = unite#sources#ssh#parse_path(args)
   if hostname == ''
@@ -137,7 +137,7 @@ function! s:source.change_candidates(args, context)"{{{
 
   return candidates
 endfunction"}}}
-function! s:source.vimfiler_check_filetype(args, context)"{{{
+function! s:source.vimfiler_check_filetype(args, context) "{{{
   let args = join(a:args, ':')
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(args)
@@ -197,7 +197,7 @@ function! s:source.vimfiler_check_filetype(args, context)"{{{
 
   return [type, info]
 endfunction"}}}
-function! s:source.vimfiler_gather_candidates(args, context)"{{{
+function! s:source.vimfiler_gather_candidates(args, context) "{{{
   if empty(a:args)
     return []
   endif
@@ -213,7 +213,7 @@ function! s:source.vimfiler_gather_candidates(args, context)"{{{
 
   return candidates
 endfunction"}}}
-function! s:source.vimfiler_dummy_candidates(args, context)"{{{
+function! s:source.vimfiler_dummy_candidates(args, context) "{{{
   let args = join(a:args, ':')
   let [hostname, port, path] = unite#sources#ssh#parse_path(args)
   if hostname == ''
@@ -233,7 +233,7 @@ function! s:source.vimfiler_dummy_candidates(args, context)"{{{
 
   return candidates
 endfunction"}}}
-function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)"{{{
+function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos) "{{{
   let arg = join(a:args, ':')
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(arg)
@@ -249,7 +249,7 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
           \   "printf('//%s', v:val)")
   endif
 endfunction"}}}
-function! s:source.complete(args, context, arglead, cmdline, cursorpos)"{{{
+function! s:source.complete(args, context, arglead, cmdline, cursorpos) "{{{
   let arg = join(a:args, ':')
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(arg)
@@ -266,11 +266,11 @@ function! s:source.complete(args, context, arglead, cmdline, cursorpos)"{{{
   endif
 endfunction"}}}
 
-function! unite#sources#ssh#system_passwd(...)"{{{
+function! unite#sources#ssh#system_passwd(...) "{{{
   return call((unite#util#has_vimproc() ?
         \ 'vimproc#system_passwd' : 'system'), a:000)
 endfunction"}}}
-function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
+function! unite#sources#ssh#create_file_dict(file, path, hostname, ...) "{{{
   let is_filedict = type(a:file) == type({})
   if is_filedict
   else
@@ -342,7 +342,7 @@ function! unite#sources#ssh#create_file_dict(file, path, hostname, ...)"{{{
 
   return dict
 endfunction"}}}
-function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
+function! unite#sources#ssh#create_vimfiler_dict(candidate) "{{{
   let a:candidate.vimfiler__abbr = a:candidate.abbr
   let a:candidate.vimfiler__filename = a:candidate.word
 
@@ -357,7 +357,7 @@ function! unite#sources#ssh#create_vimfiler_dict(candidate)"{{{
           \ a:candidate.vimfiler__is_directory ? 'dir' : 'file'
   endif
 endfunction"}}}
-function! unite#sources#ssh#parse_path(path)"{{{
+function! unite#sources#ssh#parse_path(path) "{{{
   let args = matchlist(
         \ substitute(a:path, '^ssh:', '', ''),
         \'^//\([^/#:]\+\)\%([#:]\(\d*\)\)\?/\?\(.*\)$')
@@ -377,7 +377,7 @@ function! unite#sources#ssh#parse_path(path)"{{{
 
   return [hostname, port, path]
 endfunction"}}}
-function! unite#sources#ssh#parse_action_path(path)"{{{
+function! unite#sources#ssh#parse_action_path(path) "{{{
   if a:path =~ '^ssh:\|^//'
     let [hostname, port, path] =
           \ unite#sources#ssh#parse_path(
@@ -390,7 +390,7 @@ function! unite#sources#ssh#parse_action_path(path)"{{{
 
   return [port, path]
 endfunction"}}}
-function! unite#sources#ssh#convert2fullpath(path)"{{{
+function! unite#sources#ssh#convert2fullpath(path) "{{{
   let path = a:path
   let vimfiler_current_dir = get(unite#get_context(),
         \  'vimfiler__current_directory', '')
@@ -405,7 +405,7 @@ function! unite#sources#ssh#convert2fullpath(path)"{{{
 
   return path
 endfunction"}}}
-function! unite#sources#ssh#parse2fullpath(path)"{{{
+function! unite#sources#ssh#parse2fullpath(path) "{{{
   let path = substitute(a:path, '^file:', '', '')
   let [host, port, parsed_path] =
         \ unite#sources#ssh#parse_path(path)
@@ -416,11 +416,11 @@ function! unite#sources#ssh#parse2fullpath(path)"{{{
   return [host, port, parsed_path]
 endfunction"}}}
 
-function! unite#sources#ssh#complete_host(args, context, arglead, cmdline, cursorpos)"{{{
+function! unite#sources#ssh#complete_host(args, context, arglead, cmdline, cursorpos) "{{{
   return unite#sources#ssh#command_complete_host(
         \ a:arglead, a:cmdline, a:cursorpos)
 endfunction"}}}
-function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, cursorpos)"{{{
+function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, cursorpos) "{{{
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(join(a:args, ':'))
   if hostname == ''
@@ -446,21 +446,21 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
   return map(files, "printf('%s:%s/%s', hostname, port,
         \      substitute(v:val, '[*@|]$', '', ''))")
 endfunction"}}}
-function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos)"{{{
+function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos) "{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
   return filter(unite#sources#ssh#complete_file(
         \ split(vimfiler_current_dir, ':'), unite#get_context(),
         \ a:arglead, a:cmdline, a:cursorpos), "v:val =~ '/$'")
 endfunction"}}}
-function! unite#sources#ssh#command_complete_file(arglead, cmdline, cursorpos)"{{{
+function! unite#sources#ssh#command_complete_file(arglead, cmdline, cursorpos) "{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
   return unite#sources#ssh#complete_file(
         \ split(vimfiler_current_dir, ':'), unite#get_context(),
         \ a:arglead, a:cmdline, a:cursorpos)
 endfunction"}}}
-function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{{{
+function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos) "{{{
   let _ = []
 
   if filereadable('/etc/hosts')
@@ -496,7 +496,7 @@ function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos)"{
   return sort(unite#util#uniq(filter(_, 'stridx(v:val, a:arglead) == 0')))
 endfunction"}}}
 
-function! unite#sources#ssh#copy_files(dest, srcs)"{{{
+function! unite#sources#ssh#copy_files(dest, srcs) "{{{
   let [dest_host, dest_port, dest_path] =
         \ unite#sources#ssh#parse2fullpath(a:dest)
 
@@ -568,7 +568,7 @@ function! unite#sources#ssh#copy_files(dest, srcs)"{{{
 
   return ret
 endfunction"}}}
-function! unite#sources#ssh#move_files(dest, srcs)"{{{
+function! unite#sources#ssh#move_files(dest, srcs) "{{{
   let [dest_host, dest_port, dest_path] =
         \ unite#sources#ssh#parse2fullpath(a:dest)
 
@@ -631,7 +631,7 @@ function! unite#sources#ssh#move_files(dest, srcs)"{{{
 
   return ret
 endfunction"}}}
-function! unite#sources#ssh#delete_files(srcs)"{{{
+function! unite#sources#ssh#delete_files(srcs) "{{{
   for src in a:srcs
     let protocol = matchstr(
           \ src.action__path, '^\h\w\+')
@@ -658,7 +658,7 @@ function! unite#sources#ssh#delete_files(srcs)"{{{
   endfor
 endfunction"}}}
 
-function! s:get_filelist(hostname, port, path, is_force)"{{{
+function! s:get_filelist(hostname, port, path, is_force) "{{{
   let key = a:hostname.':'.a:path
   if !has_key(s:id_cache, a:hostname)
     let id = unite#sources#ssh#system_passwd('id')
@@ -691,10 +691,10 @@ function! s:get_filelist(hostname, port, path, is_force)"{{{
 
   return copy(s:filelist_cache[key])
 endfunction"}}}
-function! s:get_id(hostname)"{{{
+function! s:get_id(hostname) "{{{
   return get(s:id_cache, a:hostname, {'user' : '', 'group': ''})
 endfunction"}}}
-function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
+function! unite#sources#ssh#ssh_command(command, host, port, path) "{{{
   let command_line = unite#sources#ssh#substitute_command(
         \ g:unite_kind_file_ssh_command . ' ' . a:command, a:host, a:port)
   if a:path != ''
@@ -714,7 +714,7 @@ function! unite#sources#ssh#ssh_command(command, host, port, path)"{{{
 
   return [status, output]
 endfunction"}}}
-function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
+function! unite#sources#ssh#ssh_list(command, host, port, path) "{{{
   let lang_save = $LANG
   let locale_save = $LC_TIME
   try
@@ -743,7 +743,7 @@ function! unite#sources#ssh#ssh_list(command, host, port, path)"{{{
         \ "v:val != '' && v:val !~ '^ls: ' &&
         \  v:val !~ 'No such file or directory'")
 endfunction"}}}
-function! unite#sources#ssh#substitute_command(command, host, port)"{{{
+function! unite#sources#ssh#substitute_command(command, host, port) "{{{
   return substitute(substitute(a:command,
           \   '\<HOSTNAME\>', a:host, 'g'),
           \   '\s\zs\(-[[:alnum:]-]\+\s\+\)\?PORT\>',
@@ -773,7 +773,7 @@ function! s:parse_filename(files)
   endfor
 endfunction
 
-" Add custom action table."{{{
+" Add custom action table. "{{{
 let s:cdable_action_file = {
       \ 'description' : 'open this directory by file source',
       \}

@@ -27,7 +27,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-" Global options definition."{{{
+" Global options definition. "{{{
 " External commands.
 call unite#util#set_default(
       \ 'g:unite_kind_file_ssh_command',
@@ -58,10 +58,10 @@ call unite#util#set_default(
       \ 'touch $dest')
 "}}}
 
-function! unite#kinds#file_ssh#initialize()"{{{
+function! unite#kinds#file_ssh#initialize() "{{{
 endfunction"}}}
 
-function! unite#kinds#file_ssh#define()"{{{
+function! unite#kinds#file_ssh#define() "{{{
   return s:kind
 endfunction"}}}
 
@@ -74,12 +74,12 @@ let s:kind = {
       \ 'parents' : ['openable', 'uri'],
       \}
 
-" Actions"{{{
+" Actions "{{{
 let s:kind.action_table.open = {
       \ 'description' : 'open files',
       \ 'is_selectable' : 1,
       \ }
-function! s:kind.action_table.open.func(candidates)"{{{
+function! s:kind.action_table.open.func(candidates) "{{{
   if !get(g:, 'vimfiler_as_default_explorer', 0)
     call unite#print_error("vimfiler is not default explorer.")
     call unite#print_error("Please set g:vimfiler_as_default_explorer is 1.")
@@ -99,7 +99,7 @@ let s:kind.action_table.preview = {
       \ 'description' : 'preview file',
       \ 'is_quit' : 0,
       \ }
-function! s:kind.action_table.preview.func(candidate)"{{{
+function! s:kind.action_table.preview.func(candidate) "{{{
   if !get(g:, 'vimfiler_as_default_explorer', 0)
     call unite#print_error("vimfiler is not default explorer.")
     call unite#print_error("Please set g:vimfiler_as_default_explorer is 1.")
@@ -112,7 +112,7 @@ endfunction"}}}
 let s:kind.action_table.cd = {
       \ 'description' : 'change vimfiler current directory',
       \ }
-function! s:kind.action_table.cd.func(candidate)"{{{
+function! s:kind.action_table.cd.func(candidate) "{{{
   if &filetype ==# 'vimfiler'
     call vimfiler#mappings#cd(a:candidate.action__directory)
     call s:move_vimfiler_cursor(a:candidate)
@@ -122,7 +122,7 @@ endfunction"}}}
 let s:kind.action_table.lcd = {
       \ 'description' : 'change vimfiler current directory',
       \ }
-function! s:kind.action_table.lcd.func(candidate)"{{{
+function! s:kind.action_table.lcd.func(candidate) "{{{
   if &filetype ==# 'vimfiler'
     call vimfiler#mappings#cd(a:candidate.action__directory)
     call s:move_vimfiler_cursor(a:candidate)
@@ -133,7 +133,7 @@ let s:kind.action_table.narrow = {
       \ 'description' : 'narrowing candidates by directory name',
       \ 'is_quit' : 0,
       \ }
-function! s:kind.action_table.narrow.func(candidate)"{{{
+function! s:kind.action_table.narrow.func(candidate) "{{{
   if a:candidate.word =~ '^\.\.\?/'
     let word = a:candidate.word
   else
@@ -150,7 +150,7 @@ endfunction"}}}
 let s:kind.action_table.vimfiler__write = {
       \ 'description' : 'save file',
       \ }
-function! s:kind.action_table.vimfiler__write.func(candidate)"{{{
+function! s:kind.action_table.vimfiler__write.func(candidate) "{{{
   let context = unite#get_context()
   let lines = split(unite#util#iconv(
         \ join(getline(context.vimfiler__line1, context.vimfiler__line2), "\n"),
@@ -179,7 +179,7 @@ let s:kind.action_table.vimfiler__shell = {
       \ 'description' : 'popup shell',
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__shell.func(candidate)"{{{
+function! s:kind.action_table.vimfiler__shell.func(candidate) "{{{
   let vimfiler_current_dir = get(unite#get_context(),
         \  'vimfiler__current_directory', '')
   if vimfiler_current_dir =~ '/$'
@@ -213,7 +213,7 @@ let s:kind.action_table.vimfiler__shellcmd = {
       \ 'description' : 'execute shell command',
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__shellcmd.func(candidate)"{{{
+function! s:kind.action_table.vimfiler__shellcmd.func(candidate) "{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 
@@ -246,7 +246,7 @@ let s:kind.action_table.vimfiler__mkdir = {
       \ 'is_listed' : 0,
       \ 'is_selectable' : 1,
       \ }
-function! s:kind.action_table.vimfiler__mkdir.func(candidates)"{{{
+function! s:kind.action_table.vimfiler__mkdir.func(candidates) "{{{
   let context = unite#get_context()
   let vimfiler_current_dir =
         \ get(context, 'vimfiler__current_directory', '')
@@ -288,7 +288,7 @@ let s:kind.action_table.vimfiler__newfile = {
       \ 'is_invalidate_cache' : 1,
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__newfile.func(candidate)"{{{
+function! s:kind.action_table.vimfiler__newfile.func(candidate) "{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
   if vimfiler_current_dir !~ '/$'
@@ -333,7 +333,7 @@ let s:kind.action_table.vimfiler__delete = {
       \ 'is_selectable' : 1,
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__delete.func(candidates)"{{{
+function! s:kind.action_table.vimfiler__delete.func(candidates) "{{{
   call unite#sources#ssh#delete_files(a:candidates)
 endfunction"}}}
 
@@ -343,7 +343,7 @@ let s:kind.action_table.vimfiler__rename = {
       \ 'is_invalidate_cache' : 1,
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__rename.func(candidate)"{{{
+function! s:kind.action_table.vimfiler__rename.func(candidate) "{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 
@@ -377,7 +377,7 @@ let s:kind.action_table.vimfiler__copy = {
       \ 'is_selectable' : 1,
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__copy.func(candidates)"{{{
+function! s:kind.action_table.vimfiler__copy.func(candidates) "{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 
@@ -402,7 +402,7 @@ let s:kind.action_table.vimfiler__move = {
       \ 'is_selectable' : 1,
       \ 'is_listed' : 0,
       \ }
-function! s:kind.action_table.vimfiler__move.func(candidates)"{{{
+function! s:kind.action_table.vimfiler__move.func(candidates) "{{{
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 
@@ -422,11 +422,11 @@ endfunction"}}}
 
 "}}}
 
-function! s:execute_command(command, candidate)"{{{
+function! s:execute_command(command, candidate) "{{{
   call unite#util#smart_execute_command(a:command,
         \ a:candidate.action__path)
 endfunction"}}}
-function! s:move_vimfiler_cursor(candidate)"{{{
+function! s:move_vimfiler_cursor(candidate) "{{{
   if &filetype !=# 'vimfiler'
     return
   endif
@@ -438,7 +438,7 @@ function! s:move_vimfiler_cursor(candidate)"{{{
   endif
 endfunction"}}}
 
-function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
+function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files) "{{{
   let command_line = unite#kinds#file_ssh#substitute_command(
         \ a:command, a:port, a:dest_dir, a:src_files)
 
@@ -455,7 +455,7 @@ function! unite#kinds#file_ssh#external(command, port, dest_dir, src_files)"{{{
 
   return status
 endfunction"}}}
-function! unite#kinds#file_ssh#substitute_command(command, port, dest_dir, src_files)"{{{
+function! unite#kinds#file_ssh#substitute_command(command, port, dest_dir, src_files) "{{{
   let dest_dir = a:dest_dir
   if dest_dir =~ '/$'
     " Delete last /.

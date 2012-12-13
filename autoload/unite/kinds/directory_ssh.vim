@@ -27,7 +27,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-function! unite#kinds#directory_ssh#define()"{{{
+function! unite#kinds#directory_ssh#define() "{{{
   return s:kind
 endfunction"}}}
 
@@ -38,7 +38,7 @@ let s:kind = {
       \ 'parents': ['file/ssh'],
       \}
 
-" Actions"{{{
+" Actions "{{{
 "}}}
 
 let &cpo = s:save_cpo

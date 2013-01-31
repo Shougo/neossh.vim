@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 27 Oct 2012.
+" Last Modified: 31 Jan 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -134,17 +134,8 @@ let s:kind.action_table.narrow = {
       \ 'is_quit' : 0,
       \ }
 function! s:kind.action_table.narrow.func(candidate) "{{{
-  if a:candidate.word =~ '^\.\.\?/'
-    let word = a:candidate.word
-  else
-    let word = a:candidate.action__directory
-  endif
-
-  if word !~ '[\\/]$'
-    let word .= '/'
-  endif
-
-  call unite#mappings#narrowing(word)
+  call unite#start_temporary(
+        \ [['file/ssh', a:candidate.action__directory]])
 endfunction"}}}
 
 let s:kind.action_table.vimfiler__write = {

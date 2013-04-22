@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 09 Oct 2012.
+" Last Modified: 22 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -237,7 +237,7 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
   let arg = join(a:args, ':')
   let [hostname, port, path] =
         \ unite#sources#ssh#parse_path(arg)
-  if hostname == '' || arg !~ ':'
+  if hostname == '' || substitute(a:arglead, '^//', '', '') !~ '/'
     " No hostname.
     return map(unite#sources#ssh#complete_host(
           \ a:args, a:context, substitute(a:arglead, '^//', '', ''),

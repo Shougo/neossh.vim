@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 31 Jan 2013.
+" Last Modified: 26 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -148,7 +148,7 @@ function! s:kind.action_table.vimfiler__write.func(candidate) "{{{
         \ &encoding, &fileencoding), "\n")
 
   " Use temporary file.
-  let tempname = tempname()
+  let tempname = unite#sources#ssh#tempname()
 
   call writefile(lines, tempname)
 

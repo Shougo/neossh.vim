@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 22 Apr 2013.
+" Last Modified: 26 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -159,7 +159,7 @@ function! s:source.vimfiler_check_filetype(args, context) "{{{
   let type = 'file'
 
   " Use temporary file.
-  let tempname = tempname()
+  let tempname = unite#sources#ssh#tempname()
   let dict = unite#sources#ssh#create_file_dict(
         \ fnamemodify(path, ':t'),
         \ printf('%s:%d/%s', hostname, port, path), hostname)
@@ -539,7 +539,7 @@ function! unite#sources#ssh#copy_files(dest, srcs) "{{{
     else
       if dest_host != '' && src_host != ''
         let temp = unite#sources#file#create_file_dict(
-              \ fnamemodify(tempname(), ':h') . '/' .
+              \ fnamemodify(unite#source#ssh#tempname(), ':h') . '/' .
               \ fnamemodify(src.action__path, ':t'), 0)
         let ret = unite#sources#ssh#copy_files(
               \ temp.action__path, [src])
@@ -611,7 +611,7 @@ function! unite#sources#ssh#move_files(dest, srcs) "{{{
     else
       if dest_host != '' && src_host != ''
         let temp = unite#sources#file#create_file_dict(
-              \ fnamemodify(tempname(), ':h') . '/' .
+              \ fnamemodify(unite#source#ssh#tempname(), ':h') . '/' .
               \ fnamemodify(src.action__path, ':t'), 0)
         let ret = unite#sources#ssh#move_files(
               \ temp.action__path, [src])
@@ -748,6 +748,14 @@ function! unite#sources#ssh#substitute_command(command, host, port) "{{{
           \   '\<HOSTNAME\>', a:host, 'g'),
           \   '\s\zs\(-[[:alnum:]-]\+\s\+\)\?PORT\>',
           \      (a:port == 22 ? '' : '\1'.a:port), 'g')
+endfunction"}}}
+function! unite#sources#ssh#tempname() "{{{
+  let tempname = unite#util#substitute_path_separator(tempname())
+  if g:unite_kind_file_ssh_command =~ '^ssh ' && unite#util#is_windows()
+    " Fix path for Cygwin ssh command.
+    let tempname = substitute(tempname, '^\(\a\+\):', '/cygdrive/\1', '')
+  endif
+  return tempname
 endfunction"}}}
 
 function! s:parse_filename(files)

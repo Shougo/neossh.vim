@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 26 Apr 2013.
+" Last Modified: 28 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -159,12 +159,13 @@ function! s:source.vimfiler_check_filetype(args, context) "{{{
   let type = 'file'
 
   " Use temporary file.
-  let tempname = unite#sources#ssh#tempname()
+  let tempname = tempname()
   let dict = unite#sources#ssh#create_file_dict(
         \ fnamemodify(path, ':t'),
         \ printf('%s:%d/%s', hostname, port, path), hostname)
   call unite#sources#ssh#create_vimfiler_dict(dict)
-  if unite#kinds#file_ssh#external('copy_file', port, tempname, [
+  if unite#kinds#file_ssh#external('copy_file', port,
+        \ unite#sources#ssh#tempname(tempname), [
         \ printf('%s:%s', hostname, path) ]) &&
         \ unite#util#get_last_errmsg() !~? 'No such file or directory'
     call unite#print_error(printf('Failed file "%s" copy : %s',
@@ -749,8 +750,8 @@ function! unite#sources#ssh#substitute_command(command, host, port) "{{{
           \   '\s\zs\(-[[:alnum:]-]\+\s\+\)\?PORT\>',
           \      (a:port == 22 ? '' : '\1'.a:port), 'g')
 endfunction"}}}
-function! unite#sources#ssh#tempname() "{{{
-  let tempname = unite#util#substitute_path_separator(tempname())
+function! unite#sources#ssh#tempname(temp) "{{{
+  let tempname = unite#util#substitute_path_separator(a:temp)
   if g:unite_kind_file_ssh_command =~ '^ssh ' && unite#util#is_windows()
     " Fix path for Cygwin ssh command.
     let tempname = substitute(tempname, '^\(\a\+\):', '/cygdrive/\1', '')

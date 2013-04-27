@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 26 Apr 2013.
+" Last Modified: 28 Apr 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -148,14 +148,15 @@ function! s:kind.action_table.vimfiler__write.func(candidate) "{{{
         \ &encoding, &fileencoding), "\n")
 
   " Use temporary file.
-  let tempname = unite#sources#ssh#tempname()
+  let tempname = tempname()
 
   call writefile(lines, tempname)
 
   let [port, path] =
         \ unite#sources#ssh#parse_action_path(a:candidate.action__path)
 
-  if unite#kinds#file_ssh#external('copy_file', port, path, [tempname])
+  if unite#kinds#file_ssh#external('copy_file', port, path,
+        \ [unite#sources#ssh#tempname(tempname)])
     call unite#print_error(printf('Failed file "%s" copy : %s',
           \ path, unite#util#get_last_errmsg()))
     setlocal modified

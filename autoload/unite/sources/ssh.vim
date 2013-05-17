@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 28 Apr 2013.
+" Last Modified: 17 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -147,10 +147,14 @@ function! s:source.vimfiler_check_filetype(args, context) "{{{
     return [ 'error', '[ssh] usage: ssh://[user@]hostname/[path]' ]
   endif
 
+  if port != ''
+    let port = ':' . port
+  endif
+
   if path =~ '/$' || path == ''
     " For directory.
     let type = 'directory'
-    let info = printf('//%s:%d/%s', hostname, port, path)
+    let info = printf('//%s%s/%s', hostname, port, path)
     return [type, info]
   endif
 
@@ -162,7 +166,7 @@ function! s:source.vimfiler_check_filetype(args, context) "{{{
   let tempname = tempname()
   let dict = unite#sources#ssh#create_file_dict(
         \ fnamemodify(path, ':t'),
-        \ printf('%s:%d/%s', hostname, port, path), hostname)
+        \ printf('%s%s/%s', hostname, port, path), hostname)
   call unite#sources#ssh#create_vimfiler_dict(dict)
   if unite#kinds#file_ssh#external('copy_file', port,
         \ unite#sources#ssh#tempname(tempname), [
@@ -243,7 +247,7 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
     return map(unite#sources#ssh#complete_host(
           \ a:args, a:context, substitute(a:arglead, '^//', '', ''),
           \  a:cmdline, a:cursorpos),
-          \   "'//' . v:val . ':'")
+          \   "'//' . v:val . '/'")
   else
     return map(unite#sources#ssh#complete_file(
           \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos),
@@ -259,7 +263,7 @@ function! s:source.complete(args, context, arglead, cmdline, cursorpos) "{{{
     return map(unite#sources#ssh#complete_host(
           \ a:args, a:context, substitute(a:arglead, '^//', '', ''),
           \  a:cmdline, a:cursorpos),
-          \   "'//' . v:val . ':'")
+          \   "'//' . v:val . '/'")
   else
     return filter(map(unite#sources#ssh#complete_file(
           \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos),
@@ -365,10 +369,6 @@ function! unite#sources#ssh#parse_path(path) "{{{
 
   let hostname = get(args, 1, '')
   let port = get(args, 2, '')
-  if port == ''
-    " Use default port.
-    let port = 22
-  endif
   let path = get(args, 3, '')
 
   if g:unite_source_ssh_enable_debug
@@ -444,7 +444,11 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
     call map(files, 'path . v:val')
   endif
 
-  return map(files, "printf('%s:%s/%s', hostname, port,
+  if port != ''
+    let port = ':' . port
+  endif
+
+  return map(files, "printf('%s%s/%s', hostname, port,
         \      substitute(v:val, '[*@|]$', '', ''))")
 endfunction"}}}
 function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos) "{{{
@@ -748,7 +752,7 @@ function! unite#sources#ssh#substitute_command(command, host, port) "{{{
   return substitute(substitute(a:command,
           \   '\<HOSTNAME\>', a:host, 'g'),
           \   '\s\zs\(-[[:alnum:]-]\+\s\+\)\?PORT\>',
-          \      (a:port == 22 ? '' : '\1'.a:port), 'g')
+          \      (a:port == '' ? '' : '\1'.a:port), 'g')
 endfunction"}}}
 function! unite#sources#ssh#tempname(temp) "{{{
   let tempname = unite#util#substitute_path_separator(a:temp)
@@ -759,7 +763,7 @@ function! unite#sources#ssh#tempname(temp) "{{{
   return tempname
 endfunction"}}}
 
-function! s:parse_filename(files)
+function! s:parse_filename(files)"{{{
   let month_pattern = '\a\+[.]\?,\?\s*'
   let year_pattern = '\d\{2,4}'
   let mm_pattern = '[ 0-1]\?\d'
@@ -780,7 +784,7 @@ function! s:parse_filename(files)
     let file.filetime =
           \ substitute(file.filetime, '\s\+$', '', '')
   endfor
-endfunction
+endfunction"}}}
 
 " Add custom action table. "{{{
 let s:cdable_action_file = {

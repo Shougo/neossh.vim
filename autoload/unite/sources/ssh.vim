@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 17 May 2013.
+" Last Modified: 20 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -510,7 +510,7 @@ function! unite#sources#ssh#copy_files(dest, srcs) "{{{
   for src in a:srcs
     let [src_host, src_port, src_path] =
           \ unite#sources#ssh#parse2fullpath(src.action__path)
-    let port = (src_port != 22 && port != src_port) ?
+    let port = (src_port != 22 && dest_port != src_port) ?
           \ src_port : dest_port
 
     if src_host ==# dest_host
@@ -582,7 +582,7 @@ function! unite#sources#ssh#move_files(dest, srcs) "{{{
   for src in a:srcs
     let [src_host, src_port, src_path] =
           \ unite#sources#ssh#parse2fullpath(src.action__path)
-    let port = (src_port != 22 && port != src_port) ?
+    let port = (src_port != 22 && dest_port != src_port) ?
           \ src_port : dest_port
 
     if src_host ==# dest_host

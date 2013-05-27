@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 20 May 2013.
+" Last Modified: 27 May 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -752,7 +752,7 @@ function! unite#sources#ssh#substitute_command(command, host, port) "{{{
   return substitute(substitute(a:command,
           \   '\<HOSTNAME\>', a:host, 'g'),
           \   '\s\zs\(-[[:alnum:]-]\+\s\+\)\?PORT\>',
-          \      (a:port == '' ? '' : '\1'.a:port), 'g')
+          \      (a:port == '' || a:port == 0 ? '' : '\1'.a:port), 'g')
 endfunction"}}}
 function! unite#sources#ssh#tempname(temp) "{{{
   let tempname = unite#util#substitute_path_separator(a:temp)

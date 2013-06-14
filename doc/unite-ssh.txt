@@ -151,6 +151,9 @@ Note: To use "-W" option, OpenSSH version must be "5.4" or above.
 ==============================================================================
 CHANGELOG					*unite-ssh-changelog*
 
+2013-06-14
+- Changed for latest unite.vim.
+
 2013-05-17
 - Fixed port number problem.
 

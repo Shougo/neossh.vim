@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: file_ssh.vim
 " AUTHOR:  Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 28 Apr 2013.
+" Last Modified: 14 Jun 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -326,6 +326,11 @@ let s:kind.action_table.vimfiler__delete = {
       \ 'is_listed' : 0,
       \ }
 function! s:kind.action_table.vimfiler__delete.func(candidates) "{{{
+  if !unite#util#input_yesno('Really force delete files?')
+    echo 'Canceled.'
+    return
+  endif
+
   call unite#sources#ssh#delete_files(a:candidates)
 endfunction"}}}
 
@@ -395,6 +400,11 @@ let s:kind.action_table.vimfiler__move = {
       \ 'is_listed' : 0,
       \ }
 function! s:kind.action_table.vimfiler__move.func(candidates) "{{{
+  if !unite#util#input_yesno('Really move files?')
+    echo 'Canceled.'
+    return
+  endif
+
   let vimfiler_current_dir =
         \ get(unite#get_context(), 'vimfiler__current_directory', '')
 

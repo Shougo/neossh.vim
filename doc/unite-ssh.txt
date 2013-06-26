@@ -35,11 +35,11 @@ Changelog		|unite-ssh-changelog|
 ==============================================================================
 USAGE						*unite-ssh-usage*
 
-	This source nominates ssh host files.
+	This source nominates files over ssh.
 	
 	Note: To avoid password input every time, we recommend you to prepare
-	the ssh key or to write "ControlMaster auto" in ~/.ssh/config(please
-	refer to Examples section).
+	the ssh key or to write "ControlMaster auto" in ~/.ssh/config. Please
+	refer to |unite-ssh-examples| section.
 
 		Source arguments:
 		1. //HOSTNAME:port/path

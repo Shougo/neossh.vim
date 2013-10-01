@@ -132,6 +132,7 @@ endfunction"}}}
 let s:kind.action_table.narrow = {
       \ 'description' : 'narrowing candidates by directory name',
       \ 'is_quit' : 0,
+      \ 'is_start' : 1,
       \ }
 function! s:kind.action_table.narrow.func(candidate) "{{{
   call unite#start_temporary(

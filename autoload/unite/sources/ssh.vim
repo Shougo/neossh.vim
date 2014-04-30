@@ -595,7 +595,7 @@ function! unite#sources#ssh#move_files(dest, srcs) "{{{
       if status
         call unite#print_error(printf(
               \ 'Failed file "%s" move : %s',
-              \ path, unite#util#get_last_errmsg()))
+              \ src_path, unite#util#get_last_errmsg()))
         let ret = 1
       endif
     else

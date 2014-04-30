@@ -354,6 +354,10 @@ function! s:kind.action_table.vimfiler__rename.func(candidate) "{{{
         \       'customlist,unite#sources#ssh#command_complete_file')
   redraw
 
+  if filename == ''
+    return
+  endif
+
   let [hostname, port, src_path] =
         \ unite#sources#ssh#parse_path(a:candidate.action__path)
   let [hostname, port, dest_path] =
@@ -386,6 +390,12 @@ function! s:kind.action_table.vimfiler__copy.func(candidates) "{{{
         \   context.action__directory :
         \   input('Input destination directory: ', vimfiler_current_dir,
         \     'customlist,unite#sources#ssh#command_complete_directory')
+  redraw
+
+  if dest_dir == ''
+    echo 'Canceled.'
+    return
+  endif
   if dest_dir !~ '/$'
     let dest_dir .= '/'
   endif
@@ -416,6 +426,12 @@ function! s:kind.action_table.vimfiler__move.func(candidates) "{{{
         \   context.action__directory :
         \   input('Input destination directory: ', vimfiler_current_dir,
         \     'customlist,unite#sources#ssh#command_complete_directory')
+  redraw
+
+  if dest_dir == ''
+    echo 'Canceled.'
+    return
+  endif
   if dest_dir !~ '/$'
     let dest_dir .= '/'
   endif

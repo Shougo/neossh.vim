@@ -244,13 +244,11 @@ function! s:source.vimfiler_complete(args, context, arglead, cmdline, cursorpos)
   if hostname == '' || substitute(a:arglead, '^//', '', '') !~ '/'
     " No hostname.
     return map(unite#sources#ssh#complete_host(
-          \ a:args, a:context, substitute(a:arglead, '^//', '', ''),
-          \  a:cmdline, a:cursorpos),
-          \   "'//' . v:val . '/'")
+          \ substitute(a:arglead, '^//', '', ''),
+          \  a:cmdline, a:cursorpos), "'//' . v:val . '/'")
   else
     return map(unite#sources#ssh#complete_file(
-          \ a:args, a:context, a:arglead, a:cmdline, a:cursorpos),
-          \   "printf('//%s', v:val)")
+          \ a:arglead, a:cmdline, a:cursorpos), "printf('//%s', v:val)")
   endif
 endfunction"}}}
 function! s:source.complete(args, context, arglead, cmdline, cursorpos) "{{{
@@ -402,14 +400,10 @@ function! unite#sources#ssh#parse2fullpath(path) "{{{
   return [host, port, parsed_path]
 endfunction"}}}
 
-function! unite#sources#ssh#complete_host(args, context, arglead, cmdline, cursorpos) "{{{
-  return unite#sources#ssh#command_complete_host(
-        \ a:arglead, a:cmdline, a:cursorpos)
-endfunction"}}}
-function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, cursorpos) "{{{
+function! unite#sources#ssh#complete_file(arglead, cmdline, cursorpos) "{{{
   let [hostname, port, path] =
-        \ unite#sources#ssh#parse_path(join(a:args, ':'))
-  if hostname == ''|| a:arglead !~ ':'
+        \ unite#sources#ssh#parse_path(a:cmdline)
+  if hostname == ''
     " No hostname.
     return []
   endif
@@ -433,24 +427,18 @@ function! unite#sources#ssh#complete_file(args, context, arglead, cmdline, curso
     let port = ':' . port
   endif
 
+  if a:arglead =~ '^ssh:'
+    let hostname = 'ssh://' . hostname
+  endif
+
   return map(files, "printf('%s%s/%s', hostname, port,
         \      substitute(v:val, '[*@|]$', '', ''))")
 endfunction"}}}
-function! unite#sources#ssh#command_complete_directory(arglead, cmdline, cursorpos) "{{{
-  let vimfiler_current_dir =
-        \ get(unite#get_context(), 'vimfiler__current_directory', '')
+function! unite#sources#ssh#complete_directory(arglead, cmdline, cursorpos) "{{{
   return filter(unite#sources#ssh#complete_file(
-        \ split(vimfiler_current_dir, ':'), unite#get_context(),
         \ a:arglead, a:cmdline, a:cursorpos), "v:val =~ '/$'")
 endfunction"}}}
-function! unite#sources#ssh#command_complete_file(arglead, cmdline, cursorpos) "{{{
-  let vimfiler_current_dir =
-        \ get(unite#get_context(), 'vimfiler__current_directory', '')
-  return unite#sources#ssh#complete_file(
-        \ split(vimfiler_current_dir, ':'), unite#get_context(),
-        \ a:arglead, a:cmdline, a:cursorpos)
-endfunction"}}}
-function! unite#sources#ssh#command_complete_host(arglead, cmdline, cursorpos) "{{{
+function! unite#sources#ssh#complete_host(arglead, cmdline, cursorpos) "{{{
   let _ = []
 
   if filereadable('/etc/hosts')
@@ -507,8 +495,7 @@ function! unite#sources#ssh#copy_files(dest, srcs) "{{{
         let dest_path =
               \ input(printf('New name: %s -> ', src_path),
               \ src_path,
-              \ 'customlist,unite#sources#'.
-              \   'ssh#command_complete_file')
+              \ 'customlist,unite#sources#ssh#complete_file')
         redraw!
 
         if dest_path == ''
@@ -579,8 +566,7 @@ function! unite#sources#ssh#move_files(dest, srcs) "{{{
         let dest_path =
               \ input(printf('New name: %s -> ', src_path),
               \ src_path,
-              \ 'customlist,unite#sources#'.
-              \   'ssh#command_complete_file')
+              \ 'customlist,unite#sources#ssh#complete_file')
         redraw!
 
         if dest_path == ''

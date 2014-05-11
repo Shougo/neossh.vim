@@ -757,19 +757,6 @@ function! s:parse_filename(files)"{{{
   endfor
 endfunction"}}}
 
-" Add custom action table. "{{{
-let s:cdable_action_file = {
-      \ 'description' : 'open this directory by file source',
-      \}
-
-function! s:cdable_action_file.func(candidate)
-  call unite#start([['file', a:candidate.action__directory]])
-endfunction
-
-call unite#custom_action('cdable', 'file', s:cdable_action_file)
-unlet! s:cdable_action_file
-"}}}
-
 let &cpo = s:save_cpo
 unlet s:save_cpo
 

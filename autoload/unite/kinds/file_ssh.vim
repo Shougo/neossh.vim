@@ -26,6 +26,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:System = unite#util#get_vital().import('System.File')
+
 " Global options definition. "{{{
 " External commands.
 call unite#util#set_default(
@@ -438,6 +440,43 @@ function! s:kind.action_table.vimfiler__move.func(candidates) "{{{
   let context.action__directory = dest_dir
 
   call unite#sources#ssh#move_files(dest_dir, a:candidates)
+endfunction"}}}
+
+let s:kind.action_table.vimfiler__execute = {
+      \ 'description' : 'open files with associated program in local',
+      \ 'is_selectable' : 1,
+      \ 'is_listed' : 0,
+      \ }
+function! s:kind.action_table.vimfiler__execute.func(candidates) "{{{
+  " Print error if they are directory.
+  if !empty(filter(copy(a:candidates),
+        \ 'v:val.vimfiler__is_directory'))
+    call unite#print_error('You cannot execute directory.')
+    return
+  endif
+
+  if !unite#util#input_yesno('Really want to execute files in local?')
+    echo 'Canceled.'
+    return
+  endif
+
+  for candidate in a:candidates
+    let dest_path = tempname() . (fnamemodify(candidate.action__path, ':e') != '' ?
+          \ '.' . fnamemodify(candidate.action__path, ':e') : '')
+
+    try
+      let [hostname, port, src_path] =
+            \ unite#sources#ssh#parse_path(candidate.action__path)
+      let src_path = hostname.':'.src_path
+      if unite#kinds#file_ssh#external('copy_directory',
+              \ port, dest_path, [src_path])
+        call unite#print_error(printf('Failed copy "%s" to "%s" : %s',
+              \ src_path, dest_path, unite#util#get_last_errmsg()))
+      endif
+
+      call s:System.open(dest_path)
+    endtry
+  endfor
 endfunction"}}}
 
 "}}}

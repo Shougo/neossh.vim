@@ -464,18 +464,16 @@ function! s:kind.action_table.vimfiler__execute.func(candidates) "{{{
     let dest_path = tempname() . (fnamemodify(candidate.action__path, ':e') != '' ?
           \ '.' . fnamemodify(candidate.action__path, ':e') : '')
 
-    try
-      let [hostname, port, src_path] =
-            \ unite#sources#ssh#parse_path(candidate.action__path)
-      let src_path = hostname.':'.src_path
-      if unite#kinds#file_ssh#external('copy_directory',
-              \ port, dest_path, [src_path])
-        call unite#print_error(printf('Failed copy "%s" to "%s" : %s',
-              \ src_path, dest_path, unite#util#get_last_errmsg()))
-      endif
+    let [hostname, port, src_path] =
+          \ unite#sources#ssh#parse_path(candidate.action__path)
+    let src_path = hostname.':'.src_path
+    if unite#kinds#file_ssh#external('copy_directory',
+          \ port, dest_path, [src_path])
+      call unite#print_error(printf('Failed copy "%s" to "%s" : %s',
+            \ src_path, dest_path, unite#util#get_last_errmsg()))
+    endif
 
-      call s:System.open(dest_path)
-    endtry
+    call s:System.open(dest_path)
   endfor
 endfunction"}}}
 

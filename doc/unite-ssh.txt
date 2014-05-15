@@ -1,4 +1,4 @@
-*unite-ssh.txt*	SSH source for unite.vim
+*neossh.txt*	SSH interface for Vim plugins
 
 Version: 1.0
 Author : Shougo <Shougo.Matsu@gmail.com>
@@ -22,24 +22,23 @@ License: MIT license  {{{
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 }}}
 
-CONTENTS					*unite-ssh-contents*
+CONTENTS					*neossh-contents*
 
-Usage			|unite-ssh-usage|
-Install			|unite-ssh-install|
-Interface		|unite-ssh-interface|
-  Variables		  |unite-ssh-variables|
-Configulation Examples	|unite-ssh-examples|
-FAQ			|unite-ssh-faq|
-Changelog		|unite-ssh-changelog|
+Usage			|neossh-usage|
+Install			|neossh-install|
+Interface		|neossh-interface|
+  Variables		  |neossh-variables|
+Configulation Examples	|neossh-examples|
+FAQ			|neossh-faq|
 
 ==============================================================================
-USAGE						*unite-ssh-usage*
+USAGE						*neossh-usage*
 
 	This source nominates files over ssh.
 	
 	Note: To avoid password input every time, we recommend you to prepare
 	the ssh key or to write "ControlMaster auto" in ~/.ssh/config. Please
-	refer to |unite-ssh-examples| section.
+	refer to |neossh-examples| section.
 
 		Source arguments:
 		1. //HOSTNAME:port/path
@@ -54,7 +53,7 @@ USAGE						*unite-ssh-usage*
 	"ssh://HOSTNAME/".
 
 ==============================================================================
-INSTALL						*unite-ssh-install*
+INSTALL						*neossh-install*
 
 Requirements: unite.vim and vimproc and ssh commands.
 Recommended: vimfiler.
@@ -64,10 +63,10 @@ https://github.com/Shougo/vimproc
 https://github.com/Shougo/vimfiler
 
 ==============================================================================
-INTERFACE					*unite-ssh-interface*
+INTERFACE					*neossh-interface*
 
 ------------------------------------------------------------------------------
-VARIABLES 					*unite-ssh-variables*
+VARIABLES 					*neossh-variables*
 
 g:unite_kind_file_ssh_delete_file_command
 						*g:unite_kind_file_ssh_delete_file_command*
@@ -116,7 +115,7 @@ g:unite_kind_file_ssh_switch_command		*g:unite_kind_file_ssh_switch_command*
 		Default value is refer to autoload/unite/kinds/file_ssh.vim.
 
 ==============================================================================
-EXAMPLES					*unite-ssh-examples*
+EXAMPLES					*neossh-examples*
 >
 	# in ~/.ssh/config
 	Host *
@@ -125,7 +124,7 @@ EXAMPLES					*unite-ssh-examples*
 		ControlPersist yes
 <
 ==============================================================================
-FAQ						*unite-ssh-faq*
+FAQ						*neossh-faq*
 
 Q: I want to create new file in remote server.
 
@@ -147,181 +146,6 @@ Note: To use "-W" option, OpenSSH version must be "5.4" or above.
 		ProxyCommand ssh {proxy server name} -W %h:%p
 		#ProxyCommand ssh {proxy server name} nc %h %p
 <
-
-==============================================================================
-CHANGELOG					*unite-ssh-changelog*
-
-2013-06-14
-- Changed for latest unite.vim.
-
-2013-05-17
-- Fixed port number problem.
-
-2013-04-28
-- Fixed for tempname().
-
-2013-04-26
-- Fixed for Cygwin ssh.
-
-2013-04-22
-- Fixed path completion.
-
-2013-01-31
-- Improved narrow action behavior.
-
-2012-10-29
-- Added FAQ section.
-
-2012-10-19
-- Improved mkdir action.
-
-2012-10-07
-- Improved command substitution.
-
-2012-09-20
-- Creatable file.
-
-2012-09-19
-- Added FAQ section.
-- Fixed encoding conversion.
-
-2012-09-13
-- Added cd and lcd actions.
-
-2012-09-05
-- Fixed for locale.
-- Improved to check modes.
-
-2012-09-03
-- Added readable check.
-- Fixed mkdir action.
-
-2012-08-22
-- Improved parse filenames.
-- Fixed use date command.
-
-2012-08-21
-- Added g:unite_source_ssh_enable_debug option.
-
-2012-08-20
-- Improved file list behavior.
-- Fixed for symbolic link.
-- Fixed system_passwd().
-- Fixed create_file_dict problem.
-- Fixed shellcmd action.
-
-2012-08-06
-- Fixed dotted file problem.
-- Fixed copy files.
-
-2012-07-27
-- Fixed file operations.
-- Version 1.0.
-
-2012-07-26
-- Fixed action__directory.
-- Fixed newfile action bug.
-- Fixed make_directory action bug.
-- Improved ssh_command.
-- Fixed command execution.
-- Fixed for error.
-- Fixed copy files.
-
-2012-07-02
-- Improved documentation.
-- Added examples.
-
-2012-06-25
-- Implemented unite completion.
-
-2012-06-20
-- Fixed for copy and move files.
-- Fixed for delete files.
-- Fixed for rename.
-- Fixed for move files.
-
-2012-06-04
-- Fixed ignore pattern.
-
-2012-06-01
-- Added preview action.
-- Fixed hostname completion.
-
-2012-05-25
-- Fixed path error.
-- Improved completion.
-- Added vimfiler__shell action.
-
-2012-04-23
-- Fixed path error.
-
-2012-04-13
-- Added vimfiler__delete action.
-- Fixed variables.
-- Added vimfiler__mkdir action.
-- Added helper functions.
-- Added some actions.
-- Implemented complete hosts.
-
-2012-03-19
-- Fixed path problem.
-
-2012-03-17
-- Improved get filenames behavior.
-
-2012-01-25
-- Fixed input pattern.
-
-2012-01-23
-- Fixed parse.
-
-2012-01-22
-- Fixed encoding conversion.
-
-2012-01-16
-- Fixed file open error.
-- Fixed file path.
-
-2012-01-14
-- Improved check filetype.
-
-2012-01-06
-- Implemented vimfiler__write action.
-- Fixed parse.
-
-2012-01-04
-- Fixed path error.
-
-2012-01-01
-- Improved parse args.
-
-2011-12-16
-- Fixed parser.
-- Fixed cd.
-
-2011-12-15
-- Fixed parse path.
-
-2011-12-14
-- Improved vimfiler__filetime.
-- Changed source arguments.
-- Changed for new vimfiler interface.
-
-2011-12-13
-- Improved unite-ssh source.
-- Improved ssh action.
-- Improved file open.
-
-2011-12-12
-- Improved arguments parse.
-- Improved make dictionary.
-
-2011-11-11
-- List items.
-- Fixed for vimfiler.
-
-2011-11-10
-- Inital version.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:

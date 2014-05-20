@@ -28,36 +28,7 @@ set cpo&vim
 
 let s:System = unite#util#get_vital().import('System.File')
 
-" Global options definition. "{{{
-" External commands.
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_command',
-      \ 'ssh -p PORT HOSTNAME')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_list_command',
-      \ 'ls -lFa')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_copy_directory_command',
-      \ 'scp -P PORT -q -r $srcs $dest')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_copy_file_command',
-      \ 'scp -P PORT -q $srcs $dest')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_delete_file_command',
-      \ 'rm $srcs')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_delete_directory_command',
-      \ 'rm -r $srcs')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_move_command',
-      \ 'mv $srcs $dest')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_mkdir_command',
-      \ 'mkdir $dest')
-call unite#util#set_default(
-      \ 'g:unite_kind_file_ssh_newfile_command',
-      \ 'touch $dest')
-"}}}
+call neossh#initialize()
 
 function! unite#kinds#file_ssh#initialize() "{{{
 endfunction"}}}
@@ -190,7 +161,7 @@ function! s:kind.action_table.vimfiler__shell.func(candidate) "{{{
         \ unite#sources#ssh#parse_path(
         \     vimfiler_current_dir)
   let command_line = unite#sources#ssh#substitute_command(
-        \ g:unite_kind_file_ssh_command, hostname, port)
+        \ g:neossh#ssh_command, hostname, port)
   execute 'VimShellInteractive' command_line
 
   " Change directory.
@@ -521,7 +492,7 @@ function! unite#kinds#file_ssh#substitute_command(command, port, dest_dir, src_f
 
   let src_files = map(a:src_files, 'substitute(v:val, "/$", "", "")')
   let command_line = unite#sources#ssh#substitute_command(
-        \ g:unite_kind_file_ssh_{a:command}_command, '', a:port)
+        \ g:neossh#{a:command}_command, '', a:port)
 
   " Substitute pattern.
   let command_line = substitute(command_line,

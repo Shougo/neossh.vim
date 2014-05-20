@@ -68,51 +68,40 @@ INTERFACE					*neossh-interface*
 ------------------------------------------------------------------------------
 VARIABLES 					*neossh-variables*
 
-g:unite_kind_file_ssh_delete_file_command
-						*g:unite_kind_file_ssh_delete_file_command*
-g:unite_kind_file_ssh_delete_directory_command
-						*g:unite_kind_file_ssh_delete_directory_command*
-		This variable controls vimfiler (and kind file_ssh) use delete
+g:neossh#delete_file_command			 *g:neossh#delete_file_command*
+
+					*g:neossh#delete_directory_command*
+g:neossh#delete_directory_command
+		It controls vimfiler (and kind file_ssh) use delete command.
+		
+		It substitutes special arguments:
+		$srcs : src files
+		$dest : destination directory
+		
+		Default value is "rm -r $srcs".
+
+g:neossh#copy_file_command			*g:neossh#copy_file_command*
+		It controls vimfiler (and kind file_ssh) use copy files
 		command.
+		If it is empty, this system can't support copy file.
 		
-		This variable substitute special arguments:
+		It substitutes special arguments:
 		$srcs : src files
 		$dest : destination directory
 		
-		Default value is refer to autoload/unite/kinds/file_ssh.vim.
+		Default value is "scp -P PORT -r -q $srcs $dest".
 
-g:unite_kind_file_ssh_copy_file_command		*g:unite_kind_file_ssh_copy_file_command*
-		This variable controls vimfiler (and kind file_ssh) use copy
-		files command.
-		If variable is empty, this system can't support copy file.
+					*g:neossh#copy_directory_command*
+g:neossh#copy_directory_command
+		It controls vimfiler (and kind file_ssh) use copy directories
+		command.
+		If it is empty, this system can't support copying directories.
 		
-		This variable substitute special arguments:
+		It substitutes special arguments:
 		$srcs : src files
 		$dest : destination directory
 		
-		Default value is refer to autoload/unite/kinds/file_ssh.vim.
-
-g:unite_kind_file_ssh_copy_directory_command	*g:unite_kind_file_ssh_copy_directory_command*
-		This variable controls vimfiler (and kind file_ssh) use copy
-		directories command.
-		If the variable is empty, this system can't support copying
-		directories.
-		
-		This variable substitute special arguments:
-		$srcs : src files
-		$dest : destination directory
-		
-		Default value is refer to autoload/unite/kinds/file_ssh.vim.
-
-g:unite_kind_file_ssh_switch_command		*g:unite_kind_file_ssh_switch_command*
-		This variable controls vimfiler (and kind file_ssh) use switch
-		files command.
-		
-		This variable substitute special arguments:
-		$srcs : src files
-		$dest : destination directory
-		
-		Default value is refer to autoload/unite/kinds/file_ssh.vim.
+		Default value is "scp -P PORT -q $srcs $dest".
 
 ==============================================================================
 EXAMPLES					*neossh-examples*

@@ -647,7 +647,7 @@ function! s:get_filelist(hostname, port, path, is_force) "{{{
   if !has_key(s:filelist_cache, key)
     \ || a:is_force
     let files = map(filter(map(unite#sources#ssh#ssh_list(
-          \ g:unite_kind_file_ssh_list_command,
+          \ g:neossh#list_command,
           \ a:hostname, a:port, a:path),
           \   "split(v:val, '\\s\\+')"),
           \ 'len(v:val) >= 6'), "{
@@ -672,7 +672,7 @@ function! s:get_id(hostname) "{{{
 endfunction"}}}
 function! unite#sources#ssh#ssh_command(command, host, port, path) "{{{
   let command_line = unite#sources#ssh#substitute_command(
-        \ g:unite_kind_file_ssh_command . ' ' . a:command, a:host, a:port)
+        \ g:neossh#ssh_command . ' ' . a:command, a:host, a:port)
   if a:path != ''
     let command_line .= ' ' . string(fnameescape(a:path))
   endif
@@ -698,7 +698,7 @@ function! unite#sources#ssh#ssh_list(command, host, port, path) "{{{
 
     let command_line = unite#sources#ssh#substitute_command(
           \ printf('%s ''sh -c "LC_TIME=C %s %s"''',
-          \ g:unite_kind_file_ssh_command, a:command, a:path),
+          \ g:neossh#ssh_command, a:command, a:path),
           \ a:host, a:port)
     if a:path != ''
       let command_line .= ' ' . string(fnameescape(a:path))
@@ -727,7 +727,7 @@ function! unite#sources#ssh#substitute_command(command, host, port) "{{{
 endfunction"}}}
 function! unite#sources#ssh#tempname(temp) "{{{
   let tempname = unite#util#substitute_path_separator(a:temp)
-  if g:unite_kind_file_ssh_command =~ '^ssh ' && unite#util#is_windows()
+  if g:neossh#ssh_command =~ '^ssh ' && unite#util#is_windows()
     " Fix path for Cygwin ssh command.
     let tempname = substitute(tempname, '^\(\a\+\):', '/cygdrive/\1', '')
   endif

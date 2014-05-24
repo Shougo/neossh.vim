@@ -37,7 +37,7 @@ function! unite#kinds#file_ssh#define() "{{{
   return s:kind
 endfunction"}}}
 
-let s:System = vital#of('unite.vim').import('System.File')
+let s:System = vital#of('unite').import('System.File')
 
 let s:kind = {
       \ 'name' : 'file/ssh',

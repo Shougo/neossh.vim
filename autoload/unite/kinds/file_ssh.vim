@@ -290,7 +290,8 @@ function! s:kind.action_table.vimfiler__newfile.func(candidate) "{{{
         \ printf('%s:%d/%s', hostname, port, path), hostname)
   let file.source = 'ssh'
 
-  call unite#mappings#do_action(g:vimfiler_edit_action, [file])
+  call unite#mappings#do_action(
+        \ vimfiler#get_context().edit_action, [file])
 endfunction"}}}
 
 let s:kind.action_table.vimfiler__delete = {

@@ -188,10 +188,11 @@ function! s:source.vimfiler_check_filetype(args, context) "{{{
   let current = bufnr('%')
 
   silent! execute 'edit' fnameescape(tempname)
-  let lines = getbufline(bufnr(tempname), 1, '$')
-  let fileencoding = getbufvar(bufnr(tempname), '&fileencoding')
+  let tempbuf = bufnr('%')
+  let lines = getbufline(tempbuf, 1, '$')
+  let fileencoding = getbufvar(tempbuf, '&fileencoding')
   silent execute 'buffer' current
-  silent execute 'bdelete!' bufnr(tempname)
+  silent execute 'bdelete!' tempbuf
   call delete(tempname)
   let dict.vimfiler__encoding = fileencoding
 
@@ -284,12 +285,16 @@ function! unite#sources#ssh#create_file_dict(file, path, hostname, ...) "{{{
     let dict.vimfiler__filesize = a:file.filesize
 
     " Use date command.
-    let date_command = unite#util#is_mac()
+    let date_command = unite#util#is_mac() || unite#util#is_windows()
           \ || executable('gdate') ? 'gdate' : 'date'
-    if executable(date_command)
+    " On Windows, neither date nor gdate exists by default, and only gdate can
+    " be used. However, if using gVim, gdate will cause an infinite loop
+    " because Vimfiler continually loses and regains focus, so it continues to
+    " attempt a refresh. For simplicity, date parsing is disabled on Windows.
+    if !unite#util#is_windows() && executable(date_command)
       let output = unite#util#system(
-            \ printf('%s -d %s +%%s', date_command,
-          \ string(a:file.filetime)))
+            \ printf('%s -d "%s" +%%s', date_command,
+          \ a:file.filetime))
       if output !~ 'usage:'
         " Ignore error message.
         let dict.vimfiler__filetime = substitute(output, '\n$', '', '')
@@ -697,7 +702,7 @@ function! unite#sources#ssh#ssh_list(command, host, port, path) "{{{
     let $LANG = 'C'
 
     let command_line = unite#sources#ssh#substitute_command(
-          \ printf('%s ''sh -c "LC_TIME=C %s %s"''',
+          \ printf('%s "sh -c ''LC_TIME=C %s %s''"',
           \ g:neossh#ssh_command, a:command, a:path),
           \ a:host, a:port)
     if a:path != ''

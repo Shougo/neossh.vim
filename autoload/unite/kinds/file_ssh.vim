@@ -61,26 +61,12 @@ function! s:kind.action_table.open.func(candidates) "{{{
   endif
 
   for candidate in a:candidates
-    call s:execute_command('edit', candidate)
+    call s:execute_command('VimFiler', candidate)
 
     call unite#remove_previewed_buffer_list(
           \ bufnr(unite#util#escape_file_searching(
           \       candidate.action__path)))
   endfor
-endfunction"}}}
-
-let s:kind.action_table.preview = {
-      \ 'description' : 'preview file',
-      \ 'is_quit' : 0,
-      \ }
-function! s:kind.action_table.preview.func(candidate) "{{{
-  if !get(g:, 'vimfiler_as_default_explorer', 0)
-    call unite#print_error("vimfiler is not default explorer.")
-    call unite#print_error("Please set g:vimfiler_as_default_explorer is 1.")
-    return
-  endif
-
-  call s:execute_command('pedit', a:candidate)
 endfunction"}}}
 
 let s:kind.action_table.cd = {
@@ -289,9 +275,6 @@ function! s:kind.action_table.vimfiler__newfile.func(candidate) "{{{
         \ fnamemodify(path, ':t'),
         \ printf('%s:%d/%s', hostname, port, path), hostname)
   let file.source = 'ssh'
-
-  call unite#mappings#do_action(
-        \ vimfiler#get_context().edit_action, [file])
 endfunction"}}}
 
 let s:kind.action_table.vimfiler__delete = {

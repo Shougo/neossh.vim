@@ -52,14 +52,6 @@ let s:kind.action_table.open = {
       \ 'is_selectable' : 1,
       \ }
 function! s:kind.action_table.open.func(candidates) "{{{
-  if !get(g:, 'vimfiler_as_default_explorer', 0)
-    call unite#print_error(
-          \ "vimfiler is not loaded or default explorer.")
-    call unite#print_error(
-          \ "You must enable vimfiler and set g:vimfiler_as_default_explorer is 1.")
-    return
-  endif
-
   for candidate in a:candidates
     call s:execute_command('VimFiler', candidate)
 

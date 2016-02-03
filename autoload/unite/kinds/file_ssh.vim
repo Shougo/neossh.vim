@@ -52,6 +52,10 @@ let s:kind.action_table.open = {
       \ 'is_selectable' : 1,
       \ }
 function! s:kind.action_table.open.func(candidates) "{{{
+  if !exists(':VimFiler')
+    return
+  endif
+
   for candidate in a:candidates
     call s:execute_command('VimFiler', candidate)
 
@@ -59,6 +63,37 @@ function! s:kind.action_table.open.func(candidates) "{{{
           \ bufnr(unite#util#escape_file_searching(
           \       candidate.action__path)))
   endfor
+endfunction"}}}
+
+let s:kind.action_table.preview = {
+      \ 'description' : 'preview file',
+      \ 'is_quit' : 0,
+      \ }
+function! s:kind.action_table.preview.func(candidate) "{{{
+  if !exists(':VimFiler')
+    return
+  endif
+
+  let context = unite#get_context()
+  if context.vertical_preview
+    let unite_winwidth = winwidth(0)
+    silent vertical pedit
+    wincmd P
+    let target_winwidth = (unite_winwidth + winwidth(0)) / 2
+    call s:execute_command('VimFiler', a:candidate)
+    execute 'wincmd p | vert resize ' . target_winwidth
+  else
+    let previewheight_save = &previewheight
+    try
+      let &previewheight = context.previewheight
+      silent pedit!
+      call s:execute_command('VimFiler', a:candidate)
+    finally
+      let &previewheight = previewheight_save
+    endtry
+  endif
+
+  call unite#add_previewed_buffer_list(a:candidate.action__path)
 endfunction"}}}
 
 let s:kind.action_table.cd = {

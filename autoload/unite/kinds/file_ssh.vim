@@ -81,6 +81,7 @@ function! s:kind.action_table.preview.func(candidate) "{{{
     wincmd P
     let target_winwidth = (unite_winwidth + winwidth(0)) / 2
     call s:execute_command('VimFiler', a:candidate)
+    call unite#add_previewed_buffer_list(bufnr('%'))
     execute 'wincmd p | vert resize ' . target_winwidth
   else
     let previewheight_save = &previewheight
@@ -88,12 +89,11 @@ function! s:kind.action_table.preview.func(candidate) "{{{
       let &previewheight = context.previewheight
       silent pedit!
       call s:execute_command('VimFiler', a:candidate)
+      call unite#add_previewed_buffer_list(bufnr('%'))
     finally
       let &previewheight = previewheight_save
     endtry
   endif
-
-  call unite#add_previewed_buffer_list(a:candidate.action__path)
 endfunction"}}}
 
 let s:kind.action_table.cd = {

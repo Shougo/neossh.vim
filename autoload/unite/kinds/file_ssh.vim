@@ -88,7 +88,9 @@ function! s:kind.action_table.preview.func(candidate) "{{{
     try
       let &previewheight = context.previewheight
       silent pedit!
+      wincmd P
       call s:execute_command('VimFiler', a:candidate)
+      wincmd p
       call unite#add_previewed_buffer_list(bufnr('%'))
     finally
       let &previewheight = previewheight_save

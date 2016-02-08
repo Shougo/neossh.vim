@@ -66,7 +66,7 @@ call neossh#util#set_default(
       \ 'g:unite_kind_file_ssh_newfile_command')
 "}}}
 
-function! neossh#initialize() "{{{
+function! neossh#initialize() abort "{{{
   " Dummy
 endfunction"}}}
 

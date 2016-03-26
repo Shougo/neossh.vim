@@ -37,8 +37,6 @@ function! unite#kinds#file_ssh#define() abort "{{{
   return s:kind
 endfunction"}}}
 
-let s:System = vital#of('unite').import('System.File')
-
 let s:kind = {
       \ 'name' : 'file/ssh',
       \ 'default_action' : 'open',

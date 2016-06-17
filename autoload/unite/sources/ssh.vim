@@ -456,19 +456,22 @@ function! unite#sources#ssh#complete_host(arglead, cmdline, cursorpos) abort "{{
     endfor
   endif
 
-  if filereadable(expand('~/.ssh/config'))
-    for line in readfile(expand('~/.ssh/config'))
-      let host = matchstr(line, '^Host\s\+\zs[^*]\+\ze')
-      if host != ''
-        call add(_, host)
+  let configfile = expand('~/.ssh/config')
+  let hostsfile = expand('~/.ssh/known_hosts')
+  let host_pattern = '^Host\s\+\zs[^*]\+\ze'
+  let hostsfile_pattern = '^UserKnownHostsFile\s\+\zs[^*]\+\ze'
+  if filereadable(configfile)
+    for line in readfile(configfile)
+      if line =~# host_pattern
+        call add(_, matchstr(line, host_pattern))
+      elseif line =~# hostsfile_pattern
+        let hostsfile = matchstr(line, hostsfile_pattern)
       endif
     endfor
   endif
 
-  if filereadable(expand('~/.ssh/known_hosts'))
-    for line in filter(
-          \ readfile(expand('~/.ssh/known_hosts')),
-          \        "v:val !~ '^[|\\[]'")
+  if filereadable(hostsfile)
+    for line in filter(readfile(hostsfile), "v:val !~ '^[|\\[]'")
       let host = matchstr(line, '^[^, ]*')
       if host != ''
         call add(_, host)

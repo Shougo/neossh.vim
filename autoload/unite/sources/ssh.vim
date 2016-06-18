@@ -456,7 +456,7 @@ function! unite#sources#ssh#complete_host(arglead, cmdline, cursorpos) abort "{{
     endfor
   endif
 
-  let configfile = expand('~/.ssh/config')
+  let configfile = expand(g:neossh#ssh_config)
   let hostsfile = expand('~/.ssh/known_hosts')
   let host_pattern = '^Host\s\+\zs[^*]\+\ze'
   let hostsfile_pattern = '^UserKnownHostsFile\s\+\zs[^*]\+\ze'

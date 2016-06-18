@@ -30,7 +30,7 @@ set cpo&vim
 " External commands.
 call neossh#util#set_default(
       \ 'g:neossh#ssh_command',
-      \ 'ssh -p PORT HOSTNAME',
+      \ 'ssh -F '.g:neossh#ssh_config.' -p PORT HOSTNAME',
       \ 'g:unite_kind_file_ssh_command')
 call neossh#util#set_default(
       \ 'g:neossh#list_command',
@@ -38,11 +38,11 @@ call neossh#util#set_default(
       \ 'g:unite_kind_file_ssh_list_command')
 call neossh#util#set_default(
       \ 'g:neossh#copy_directory_command',
-      \ 'scp -P PORT -q -r $srcs $dest',
+      \ 'scp -F '.g:neossh#ssh_config.' -P PORT -q -r $srcs $dest',
       \ 'g:unite_kind_file_ssh_copy_directory_command')
 call neossh#util#set_default(
       \ 'g:neossh#copy_file_command',
-      \ 'scp -P PORT -q $srcs $dest',
+      \ 'scp -F '.g:neossh#ssh_config.' -P PORT -q $srcs $dest',
       \ 'g:unite_kind_file_ssh_copy_file_command')
 call neossh#util#set_default(
       \ 'g:neossh#delete_file_command',

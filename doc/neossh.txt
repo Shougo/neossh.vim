@@ -103,6 +103,13 @@ g:neossh#copy_directory_command
 		
 		Default value is "scp -P PORT -q $srcs $dest".
 
+
+					*g:neossh#ssh_config*
+g:neossh#ssh_config
+		Specify a custom location for a ssh config file
+
+		Default value is "~/.ssh/config".
+
 ==============================================================================
 EXAMPLES					*neossh-examples*
 >

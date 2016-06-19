@@ -27,6 +27,9 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 " Global options definition. "{{{
+call neossh#util#set_default(
+      \ 'g:neossh#ssh_config',
+      \ '~/.ssh/config')
 " External commands.
 call neossh#util#set_default(
       \ 'g:neossh#ssh_command',
@@ -64,9 +67,6 @@ call neossh#util#set_default(
       \ 'g:neossh#newfile_command',
       \ 'touch $dest',
       \ 'g:unite_kind_file_ssh_newfile_command')
-call neossh#util#set_default(
-      \ 'g:neossh#ssh_config',
-      \ '~/.ssh/config')
 "}}}
 
 function! neossh#initialize() abort "{{{

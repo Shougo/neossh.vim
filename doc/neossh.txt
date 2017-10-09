@@ -107,6 +107,7 @@ g:neossh#copy_directory_command
 					*g:neossh#ssh_config*
 g:neossh#ssh_config
 		Specify a custom location for a ssh config file
+		Note: The directory is required.
 
 		Default value is "~/.ssh/config".
 

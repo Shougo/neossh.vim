@@ -26,6 +26,10 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+function! neossh#util#print_error(string) abort
+  echohl Error | echomsg '[neossh] ' . a:string | echohl None
+endfunction
+
 function! neossh#util#set_default(var, val, ...) abort  "{{{
   if !exists(a:var) || type({a:var}) != type(a:val)
     let alternate_var = get(a:000, 0, '')

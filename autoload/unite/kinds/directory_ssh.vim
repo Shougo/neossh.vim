@@ -23,12 +23,9 @@
 " }}}
 "=============================================================================
 
-let s:save_cpo = &cpo
-set cpo&vim
-
-function! unite#kinds#directory_ssh#define() abort "{{{
+function! unite#kinds#directory_ssh#define() abort
   return s:kind
-endfunction"}}}
+endfunction
 
 let s:kind = {
       \ 'name' : 'directory/ssh',
@@ -36,11 +33,3 @@ let s:kind = {
       \ 'action_table': {},
       \ 'parents': ['file/ssh'],
       \}
-
-" Actions "{{{
-"}}}
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
-
-" vim: foldmethod=marker

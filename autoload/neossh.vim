@@ -23,10 +23,7 @@
 " }}}
 "=============================================================================
 
-let s:save_cpo = &cpo
-set cpo&vim
-
-" Global options definition. "{{{
+" Global options definition.
 call neossh#util#set_default(
       \ 'g:neossh#ssh_config',
       \ '~/.ssh/config')
@@ -72,13 +69,8 @@ call neossh#util#set_default(
       \ 'g:neossh#newfile_command',
       \ 'touch $dest',
       \ 'g:unite_kind_file_ssh_newfile_command')
-"}}}
 
-function! neossh#initialize() abort "{{{
+
+function! neossh#initialize() abort
   " Dummy
-endfunction"}}}
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
-
-" vim: foldmethod=marker
+endfunction

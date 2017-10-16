@@ -31,8 +31,8 @@ call neossh#util#set_default(
       \ 'g:neossh#ssh_config',
       \ '~/.ssh/config')
 
-if !isdirectory(g:neossh#ssh_config)
-  call neossh#util#print_error(g:neossh#ssh_config + ' is required.')
+if !filereadable(expand(g:neossh#ssh_config))
+  call neossh#util#print_error(g:neossh#ssh_config . ' is required.')
 endif
 
 " External commands.
